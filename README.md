@@ -1,8 +1,10 @@
 # Zaal
 
-A futuristic desktop dashboard for Windows. Live system stats, tasks, a multi-system calendar, quick power controls and a local AI assistant, all in one dark, gold-accented app that can launch when your PC starts.
+**Your PC's dashboard.** Live hardware stats, tasks, a multi-system calendar and a local AI assistant, in one app that runs on your machine and nowhere else.
 
 Built with Electron and plain HTML/CSS/JS. No frameworks, no cloud accounts.
+
+> **Platform support:** Windows today. More platforms (Linux distros) are planned.
 
 ## Features
 
@@ -37,7 +39,7 @@ Built with Electron and plain HTML/CSS/JS. No frameworks, no cloud accounts.
 Requirements: Windows 10/11 and [Node.js](https://nodejs.org) 18 or newer.
 
 ```bash
-git clone https://github.com/<your-username>/Zaal.git
+git clone https://github.com/Varee20/Zaal.git
 cd Zaal
 npm install
 npm start
@@ -80,12 +82,6 @@ Zaal/
 
 - Islamic and Persian dates are calculated, so they can be off by a day.
 
-## Roadmap
-
-- [ ] Fan control
-- [ ] Email integration
-- [ ] Screenshots and demo GIF
-
 ## License
 
-No license chosen yet. Add a `LICENSE` file before sharing widely.
+[MIT](LICENSE)

@@ -1,8 +1,26 @@
 {
   "name": "zaal",
   "version": "0.1.0",
-  "description": "Zaal",
-  "author": "Zaal",
+  "description": "Your PC's dashboard. Live hardware stats, tasks, calendar and a local AI, in one app that runs on your machine and nowhere else.",
+  "author": "Varee20",
+  "license": "MIT",
+  "homepage": "https://github.com/Varee20/Zaal#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Varee20/Zaal.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Varee20/Zaal/issues"
+  },
+  "keywords": [
+    "electron",
+    "dashboard",
+    "system-monitor",
+    "desktop-app",
+    "ollama",
+    "local-ai",
+    "productivity"
+  ],
   "main": "main.js",
   "scripts": {
     "start": "electron .",
