@@ -53,7 +53,7 @@ npm run dist
 
 The installer lands in `dist/`. On Windows you can also just run `build.bat`, which re-launches itself as admin (needed once for the icon tooling) and uses npm mirrors for networks where GitHub downloads fail.
 
-or Go to the [Releases page](https://github.com/Varee20/Zaal/releases) and download
+Or go to the [Releases page](https://github.com/Varee20/Zaal/releases) and download
 
 ### AI assistant setup
 
