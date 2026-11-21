@@ -15,7 +15,11 @@ function fmtSize(bytes) {
   return gb >= 1000 ? (gb / 1024).toFixed(2) + ' TB' : gb.toFixed(1) + ' GB';
 }
 
+let lastDrives = '';
 function renderDrives(list) {
+  const key = JSON.stringify(list || []);
+  if (key === lastDrives) return; // nothing changed, so don't rebuild the cards
+  lastDrives = key;
   const box = $('drives');
   box.innerHTML = '';
   (list || []).forEach(dv => {
@@ -62,18 +66,6 @@ function updateBatteryHealth(s) {
   $('bh-more').textContent = more.join('  |  ');
 }
 
-// ---------- GPU ----------
-function updateGpu(gpu) {
-  if (gpu && gpu.load !== null) {
-    ring('b-gpu', gpu.load);
-    $('v-gpu').textContent = Math.round(gpu.load) + '%';
-  } else {
-    ring('b-gpu', 0);
-    $('v-gpu').textContent = 'N/A';
-  }
-  $('s-gpu').textContent = (gpu && gpu.name) || 'Not readable yet';
-}
-
 // ---------- Internet: download, upload, Wi-Fi ----------
 const netPeak = { dl: 1, ul: 1 }; // highest speed seen (Mbps), used for the ring when the Wi-Fi speed is unknown
 
@@ -103,9 +95,14 @@ function updateNetwork(net, wifi) {
   }
 }
 
+let statsBusy = false;
 async function updateStats() {
-  const s = await window.pc.getStats();
-  $('cpuname').textContent = s.cpuName;
+  // Lite: do nothing while the window is minimized or you are on another page
+  if (document.hidden || !$('dash').classList.contains('on') || statsBusy) return;
+  statsBusy = true;
+  let s;
+  try { s = await window.pc.getStats(); } finally { statsBusy = false; }
+  if ($('cpuname').textContent !== s.cpuName) $('cpuname').textContent = s.cpuName;
 
   // CPU
   ring('b-cpu', s.cpuLoad);
@@ -140,7 +137,6 @@ async function updateStats() {
   }
 
   renderDrives(s.drives);
-  updateGpu(s.gpu);
   updateNetwork(s.net, s.wifi);
   updateBatteryHealth(s);
   setUptime(s.uptime);
@@ -148,5 +144,7 @@ async function updateStats() {
 
 function startDashboard() {
   updateStats();
-  setInterval(updateStats, 1500);
+  setInterval(updateStats, 3000);
+  // coming back from minimized: refresh right away instead of waiting for the next tick
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) updateStats(); });
 }

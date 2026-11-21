@@ -8,14 +8,13 @@ function tick() {
 
 // Live parts that don't need saved data
 tick();
-setInterval(tick, 10000);
+setInterval(tick, 30000);
 startDashboard();
 
 // Button / input handlers
 initTasks();
 initCalendar();
 initSearch();
-initAI();
 initDrawer();
 initQuick();
 initPomodoro();
@@ -31,7 +30,6 @@ window.pc.loadData().then(d => {
   renderTasks();
   renderCal();
   initSettings();
-  startAI();
   startDrawer();
   startNotes();
   startWeather();

@@ -1,7 +1,7 @@
 {
   "name": "zaal",
-  "version": "0.1.0",
-  "description": "Your PC's dashboard. Live hardware stats, tasks, calendar and a local AI, in one app that runs on your machine and nowhere else.",
+  "version": "0.1.0-lite.1",
+  "description": "Zaal Lite: the light version of Zaal for older, weaker PCs. Live hardware stats, tasks and calendar, without the heavy parts.",
   "author": "Varee20",
   "license": "MIT",
   "homepage": "https://github.com/Varee20/Zaal#readme",
@@ -35,13 +35,13 @@
     "electron-builder": "^25.1.8"
   },
   "build": {
-    "appId": "com.zaal.app",
-    "productName": "Zaal",
+    "appId": "com.zaal.lite",
+    "productName": "Zaal Lite",
+    "compression": "maximum",
     "electronDist": "node_modules/electron/dist",
     "directories": { "output": "dist" },
     "files": [
       "main.js",
-      "ollama.js",
       "preload.js",
       "Zaal.ico",
       "build/icon.png",

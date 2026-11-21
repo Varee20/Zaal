@@ -30,7 +30,7 @@ const save = () => {
 function showView(v) {
   document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x.dataset.v === v));
   document.querySelectorAll('.view').forEach(x => x.classList.toggle('on', x.id === v));
-  if (v === 'ai' && typeof onAIOpen === 'function') onAIOpen(); // the AI center asks for permission the first time
+  if (v === 'dash' && typeof updateStats === 'function') updateStats(); // refresh right away when you come back to the Dashboard
 }
 document.querySelectorAll('nav button').forEach(b => { b.onclick = () => showView(b.dataset.v); });
 

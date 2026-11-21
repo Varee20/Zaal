@@ -7,6 +7,14 @@ const crypto = require('crypto');
 const { execFile } = require('child_process');
 const si = require('systeminformation');
 
+// ===== ZAAL LITE =====
+// Same app, but built to be gentle on old / weak PCs:
+//  - no PowerShell polling (that was the biggest CPU eater)
+//  - CPU and RAM are read straight from Node, for free
+//  - slow things (battery, drives, Wi-Fi, temperature) are read rarely and cached
+//  - nothing is read at all while the window is minimized or you are not on the Dashboard
+//  - no GPU polling and no AI center (the local AI model is far too heavy for weak PCs)
+
 // AppImages can't use Chromium's sandbox on some distros (Ubuntu 24.04 and newer), so turn it off only for the AppImage
 if (process.platform === 'linux' && process.env.APPIMAGE) app.commandLine.appendSwitch('no-sandbox');
 
@@ -31,122 +39,106 @@ const cfgFile = path.join(app.getPath('userData'), 'config.json');
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1100,
-    height: 700,
+    width: 1000,
+    height: 650,
+    minWidth: 760,
+    minHeight: 520,
     backgroundColor: '#0b0b0c',
     icon: path.join(__dirname, process.platform === 'linux' ? 'build/icon.png' : 'Zaal.ico'),
     autoHideMenuBar: true,
-    webPreferences: { preload: path.join(__dirname, 'preload.js') }
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), spellcheck: false }
   });
   win.loadFile('index.html');
 }
 
-// ---------- GPU + Wi-Fi (slow to read, so they refresh in the background) ----------
-let gpuInfo = { name: '', load: null };
-let wifiInfo = null;
+// ---------- System stats (lite) ----------
+// Each slow reading has a small cache: it is only refreshed when the dashboard asks AND the last reading is old enough.
+const slow = {
+  battery: { at: 0, busy: false, val: null },
+  drives: { at: 0, busy: false, val: [] },
+  wifi: { at: 0, busy: false, val: null },
+  temp: { at: 0, busy: false, val: null },
+  net: { at: 0, busy: false, val: { down: 0, up: 0 }, prev: null }
+};
 
-// GPU load comes from Windows' own performance counters, so it works for NVIDIA, AMD and Intel
-// Linux: NVIDIA via nvidia-smi, AMD via the driver's gpu_busy_percent file (Intel has no simple counter, so it shows --)
-function pollGpuLinux() {
-  execFile('nvidia-smi', ['--query-gpu=utilization.gpu', '--format=csv,noheader,nounits'], { timeout: 4000 }, (err, stdout) => {
-    let v = err ? NaN : parseFloat(String(stdout).split('\n')[0]);
-    if (isNaN(v)) {
-      try {
-        for (const d of fs.readdirSync('/sys/class/drm')) {
-          if (!/^card\d+$/.test(d)) continue;
-          const f = '/sys/class/drm/' + d + '/device/gpu_busy_percent';
-          if (fs.existsSync(f)) { v = parseFloat(fs.readFileSync(f, 'utf8')); break; }
-        }
-      } catch (e) { /* no GPU counter */ }
-    }
-    gpuInfo.load = isNaN(v) ? null : Math.min(Math.max(v, 0), 100);
-    setTimeout(pollGpuLinux, 2500);
-  });
+function refresh(c, maxAgeMs, job) {
+  if (c.busy || Date.now() - c.at < maxAgeMs) return;
+  c.busy = true;
+  c.at = Date.now();
+  Promise.resolve().then(job).catch(() => {}).finally(() => { c.busy = false; c.at = Date.now(); });
 }
 
-function pollGpu() {
-  if (process.platform === 'linux') return pollGpuLinux();
-  if (process.platform !== 'win32') return;
-  const script = "$s=(Get-Counter '\\GPU Engine(*engtype_3D)\\Utilization Percentage' -ErrorAction SilentlyContinue).CounterSamples; " +
-    "if($s){ $m=$s | Group-Object { $_.InstanceName -replace '^pid_\\d+_(luid_\\S+?)_phys.*','$1' } | " +
-    "ForEach-Object { ($_.Group | Measure-Object CookedValue -Sum).Sum } | Measure-Object -Maximum; [math]::Round($m.Maximum,1) }";
-  execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { timeout: 8000, windowsHide: true }, (err, stdout) => {
-    const v = parseFloat(String(stdout).trim());
-    gpuInfo.load = err || isNaN(v) ? null : Math.min(Math.max(v, 0), 100);
-    setTimeout(pollGpu, 2500);
-  });
-}
-
-function loadGpuName() {
-  si.graphics().then(g => {
-    const list = (g.controllers || []).slice().sort((a, b) => (b.vram || 0) - (a.vram || 0));
-    if (list[0]) gpuInfo.name = list[0].model || '';
-  }).catch(() => {});
-}
-
-function pollWifi() {
-  si.wifiConnections().then(list => {
-    const w = list && list[0];
-    wifiInfo = w ? { ssid: w.ssid, speed: w.txRate || w.rxRate || null, quality: w.quality } : null;
-  }).catch(() => { wifiInfo = null; }).finally(() => setTimeout(pollWifi, 5000));
-}
-
-// Network speed: read the byte counters of the real adapters (Wi-Fi / Ethernet) and measure how fast they grow
-let netInfo = { down: 0, up: 0 }; // bytes per second
-let netPrev = null;
-// Linux: add up the byte counters of the real adapters (skips loopback, Docker, VMs, VPN tunnels)
-function readNetLinux() {
-  let rx = 0, tx = 0;
-  for (const line of fs.readFileSync('/proc/net/dev', 'utf8').split('\n').slice(2)) {
-    const [name, rest] = line.split(':');
-    if (!rest) continue;
-    const n = name.trim();
-    if (n === 'lo' || /^(docker|veth|br-|virbr|tun|tap|vmnet|zt)/.test(n)) continue;
-    const f = rest.trim().split(/\s+/);
-    rx += Number(f[0]);
-    tx += Number(f[8]);
+// CPU load: compare the CPU's idle/busy counters between two calls (free, no extra process)
+function cpuTimes() {
+  let idle = 0, total = 0;
+  for (const c of os.cpus()) {
+    const t = c.times;
+    idle += t.idle;
+    total += t.user + t.nice + t.sys + t.idle + t.irq;
   }
-  return [rx, tx];
+  return { idle, total };
 }
+let cpuPrev = cpuTimes();
+function cpuLoad() {
+  const now = cpuTimes();
+  const dIdle = now.idle - cpuPrev.idle, dTotal = now.total - cpuPrev.total;
+  cpuPrev = now;
+  return dTotal > 0 ? Math.min(Math.max((1 - dIdle / dTotal) * 100, 0), 100) : 0;
+}
+const cpuName = (os.cpus()[0] && os.cpus()[0].model || 'CPU').replace(/\s+/g, ' ').trim();
 
-function pollNet() {
+// Network speed. Windows: "netstat -e" is a tiny built-in program (much lighter than PowerShell).
+// Its counters are 32-bit and wrap around at 4 GB, so the wrap is handled below.
+const WRAP = 4294967296;
+function netDelta(now, prev) { return now >= prev ? now - prev : now + WRAP - prev; }
+
+function readNetBytes() {
   if (process.platform === 'linux') {
-    try {
-      const [rx, tx] = readNetLinux();
-      const now = Date.now();
-      if (netPrev && now > netPrev.t) {
-        const dt = (now - netPrev.t) / 1000;
-        netInfo = { down: Math.max(0, (rx - netPrev.rx) / dt), up: Math.max(0, (tx - netPrev.tx) / dt) };
-      }
-      netPrev = { t: now, rx, tx };
-    } catch (e) { /* keep the last values */ }
-    return setTimeout(pollNet, 700);
-  }
-  if (process.platform !== 'win32') return;
-  const script = "$a = @(Get-NetAdapter -Physical | Where-Object Status -eq 'Up' | Get-NetAdapterStatistics); " +
-    "($a | Measure-Object ReceivedBytes -Sum).Sum; ($a | Measure-Object SentBytes -Sum).Sum";
-  execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { timeout: 8000, windowsHide: true }, (err, stdout) => {
-    const [rx, tx] = String(stdout).trim().split(/\s+/).map(Number);
-    const now = Date.now();
-    if (!err && !isNaN(rx) && !isNaN(tx)) {
-      if (netPrev && now > netPrev.t) {
-        const dt = (now - netPrev.t) / 1000;
-        netInfo = { down: Math.max(0, (rx - netPrev.rx) / dt), up: Math.max(0, (tx - netPrev.tx) / dt) };
-      }
-      netPrev = { t: now, rx, tx };
+    let rx = 0, tx = 0;
+    for (const line of fs.readFileSync('/proc/net/dev', 'utf8').split('\n').slice(2)) {
+      const [name, rest] = line.split(':');
+      if (!rest) continue;
+      const n = name.trim();
+      if (n === 'lo' || /^(docker|veth|br-|virbr|tun|tap|vmnet|zt)/.test(n)) continue;
+      const f = rest.trim().split(/\s+/);
+      rx += Number(f[0]);
+      tx += Number(f[8]);
     }
-    setTimeout(pollNet, 700);
+    return Promise.resolve({ rx, tx, wraps: false });
+  }
+  return new Promise((resolve, reject) => {
+    execFile('netstat', ['-e'], { timeout: 4000, windowsHide: true }, (err, stdout) => {
+      if (err) return reject(err);
+      // the first line that ends in two numbers is the "Bytes" line (works in any language)
+      for (const line of String(stdout).split(/\r?\n/)) {
+        const m = line.trim().match(/(\d+)\s+(\d+)$/);
+        if (m) return resolve({ rx: Number(m[1]), tx: Number(m[2]), wraps: true });
+      }
+      reject(new Error('no bytes line'));
+    });
   });
 }
 
-// Temperature: Windows' thermal zones. Works without admin on most PCs, but it is the system/board
-// temperature, not always the exact CPU core temperature.
-let tempInfo = null; // degrees C
-function pollTemp() {
+function updateNet() {
+  return readNetBytes().then(({ rx, tx, wraps }) => {
+    const now = Date.now(), p = slow.net.prev;
+    if (p && now > p.t) {
+      const dt = (now - p.t) / 1000;
+      const dRx = wraps ? netDelta(rx, p.rx) : Math.max(0, rx - p.rx);
+      const dTx = wraps ? netDelta(tx, p.tx) : Math.max(0, tx - p.tx);
+      // ignore impossible jumps (an adapter that was reset)
+      if (dRx / dt < 1.25e9 && dTx / dt < 1.25e9) slow.net.val = { down: dRx / dt, up: dTx / dt };
+    }
+    slow.net.prev = { t: now, rx, tx };
+  });
+}
+
+// Temperature: the system/board thermal zone. Often not available on laptops, so it is checked only every 30 seconds.
+function updateTemp() {
   if (process.platform === 'linux') {
-    si.cpuTemperature().then(t => {
+    return si.cpuTemperature().then(t => {
       let v = t && t.main > 0 ? t.main : null;
-      if (v === null) { // fall back to the kernel's thermal zones
+      if (v === null) {
         try {
           const temps = fs.readdirSync('/sys/class/thermal').filter(d => d.startsWith('thermal_zone'))
             .map(d => parseInt(fs.readFileSync('/sys/class/thermal/' + d + '/temp', 'utf8'), 10) / 1000)
@@ -154,40 +146,40 @@ function pollTemp() {
           if (temps.length) v = Math.max(...temps);
         } catch (e) { /* none available */ }
       }
-      tempInfo = v;
-    }).catch(() => { tempInfo = null; }).finally(() => setTimeout(pollTemp, 5000));
-    return;
+      slow.temp.val = v;
+    });
   }
-  if (process.platform !== 'win32') return;
+  if (process.platform !== 'win32') return Promise.resolve();
   const script = "$t = @(Get-CimInstance -Namespace root/wmi -ClassName MSAcpi_ThermalZoneTemperature -ErrorAction SilentlyContinue | ForEach-Object { $_.CurrentTemperature / 10 - 273.15 }); " +
-    "if(-not $t){ $t = @((Get-Counter '\\Thermal Zone Information(*)\\Temperature' -ErrorAction SilentlyContinue).CounterSamples | ForEach-Object { $_.CookedValue - 273.15 }) }; " +
     "$t = @($t | Where-Object { $_ -gt 0 -and $_ -lt 120 }); if($t.Count){ [math]::Round(($t | Measure-Object -Maximum).Maximum,1) }";
-  execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { timeout: 10000, windowsHide: true }, (err, stdout) => {
-    const v = parseFloat(String(stdout).trim());
-    tempInfo = err || isNaN(v) ? null : v;
-    setTimeout(pollTemp, 5000);
+  return new Promise(resolve => {
+    execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', script], { timeout: 10000, windowsHide: true }, (err, stdout) => {
+      const v = parseFloat(String(stdout).trim());
+      slow.temp.val = err || isNaN(v) ? null : v;
+      resolve();
+    });
   });
 }
 
-function startPollers() {
-  loadGpuName();
-  pollGpu();
-  pollWifi();
-  pollNet();
-  pollTemp();
-}
+ipcMain.handle('get-stats', () => {
+  // refresh the slow readings only when they are old enough
+  refresh(slow.net, 2500, updateNet);
+  refresh(slow.battery, 30 * 1000, () => si.battery().then(b => { slow.battery.val = b; }));
+  refresh(slow.drives, 60 * 1000, () => si.fsSize().then(f => { slow.drives.val = f.filter(x => x.size > 0).map(x => ({ name: x.mount || x.fs, size: x.size, used: x.used })); }));
+  refresh(slow.wifi, 20 * 1000, () => si.wifiConnections().then(list => {
+    const w = list && list[0];
+    slow.wifi.val = w ? { ssid: w.ssid, speed: w.txRate || w.rxRate || null, quality: w.quality } : null;
+  }));
+  refresh(slow.temp, 30 * 1000, updateTemp);
 
-// ---------- System stats ----------
-ipcMain.handle('get-stats', async () => {
-  const [load, mem, bat, cpu, fsd] = await Promise.all([
-    si.currentLoad(), si.mem(), si.battery(), si.cpu(), si.fsSize()
-  ]);
+  const total = os.totalmem();
+  const bat = slow.battery.val || {};
   return {
-    cpuName: `${cpu.manufacturer} ${cpu.brand}`,
-    cpuLoad: load.currentLoad,
-    memUsed: mem.active,
-    memTotal: mem.total,
-    batteryHas: bat.hasBattery,
+    cpuName,
+    cpuLoad: cpuLoad(),
+    memUsed: total - os.freemem(),
+    memTotal: total,
+    batteryHas: !!bat.hasBattery,
     batteryPct: bat.percent,
     charging: bat.isCharging,
     batteryDesigned: bat.designedCapacity || 0,
@@ -195,11 +187,10 @@ ipcMain.handle('get-stats', async () => {
     batteryCycles: bat.cycleCount || 0,
     batteryRemaining: bat.timeRemaining || 0,
     uptime: os.uptime(),
-    temp: tempInfo,
-    drives: fsd.filter(x => x.size > 0).map(x => ({ name: x.mount || x.fs, size: x.size, used: x.used })),
-    net: netInfo,
-    wifi: wifiInfo,
-    gpu: gpuInfo
+    temp: slow.temp.val,
+    drives: slow.drives.val,
+    net: slow.net.val,
+    wifi: slow.wifi.val
   };
 });
 
@@ -418,9 +409,6 @@ ipcMain.handle('google-sync', async () => {
   }
 });
 
-// ---------- Local AI assistant (Ollama) ----------
-require('./ollama')(ipcMain);
-
 // ---------- Quick actions (top bar) ----------
 ipcMain.handle('quick-action', async (event, action) => {
   const run = (cmd, args) => execFile(cmd, args, { windowsHide: true }, () => {});
@@ -507,7 +495,6 @@ app.whenReady().then(() => {
       }
     }
   } catch (e) { /* not important */ }
-  startPollers();
   createWindow();
 });
 app.on('window-all-closed', () => app.quit());

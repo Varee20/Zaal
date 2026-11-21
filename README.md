@@ -53,6 +53,7 @@ npm run dist
 
 The installer lands in `dist/`. On Windows you can also just run `build.bat`, which re-launches itself as admin (needed once for the icon tooling) and uses npm mirrors for networks where GitHub downloads fail.
 
+Or go to the [Releases page](https://github.com/Varee20/Zaal/releases) and download the .exe file
 ### AI assistant setup
 
 Open the **AI center** tab and click **Set up the assistant**. Zaal will install and link Ollama for you. Small local models can make mistakes, which is why every change needs your confirmation.

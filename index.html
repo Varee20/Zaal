@@ -13,7 +13,6 @@
   <button class="on" data-v="dash">Dashboard</button>
   <button data-v="tasks">Tasks</button>
   <button data-v="cal">Calendar</button>
-  <button data-v="ai">AI center</button>
   <button data-v="settings">Settings</button>
 </nav>
 
@@ -90,10 +89,6 @@
       <div class="card">
         <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-cpu" cx="60" cy="60" r="50" stroke="var(--white)"/></svg>
         <div class="val" id="v-cpu">0%</div><div class="label">CPU</div><div class="sub"></div>
-      </div>
-      <div class="card">
-        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-gpu" cx="60" cy="60" r="50" stroke="var(--bronze)"/></svg>
-        <div class="val" id="v-gpu">--</div><div class="label">GPU</div><div class="sub" id="s-gpu"></div>
       </div>
       <div class="card">
         <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-ram" cx="60" cy="60" r="50" stroke="var(--gold)"/></svg>
@@ -178,30 +173,6 @@
     </div>
   </section>
 
-  <!-- AI center -->
-  <section class="view" id="ai">
-    <div class="h2">AI center</div>
-
-    <div class="panel wide">
-      <div class="ai-head">
-        <div class="h3">Zaal assistant <span class="gtag" id="ai-state">Not set up</span></div>
-        <select class="inp aisel" id="ai-model" title="AI model"></select>
-      </div>
-
-      <div id="ai-setup">
-        <div class="muted" id="ai-setup-text"></div>
-        <button class="btn md" id="ai-setup-btn">Set up the assistant</button>
-      </div>
-
-      <div class="chatlog" id="chat-log"></div>
-      <div class="row">
-        <input class="inp" id="chat-in" placeholder="Ask Zaal to add a task, set an event, organize your list...">
-        <button class="btn" id="chat-send">Send</button>
-      </div>
-      <div class="muted note">Runs on your own PC with Ollama. Nothing you write is sent online. Small AI models can make mistakes, so Zaal always asks before changing anything.</div>
-    </div>
-  </section>
-
   <!-- Settings -->
   <section class="view" id="settings">
     <div class="h2">Settings</div>
@@ -246,22 +217,6 @@
 </aside>
 <button class="handle" id="drawer-toggle" title="Today panel">&lsaquo;</button>
 
-<!-- Permission popup for the AI assistant (shown the first time the AI center is opened) -->
-<div class="modal" id="ai-modal" hidden>
-  <div class="modal-box">
-    <div class="h2" id="ai-modal-title">Set up the Zaal assistant</div>
-    <div id="ai-modal-body"></div>
-    <div id="ai-modal-progress" hidden>
-      <div class="muted" id="ai-modal-text"></div>
-      <div class="dbar"><i id="ai-modal-bar"></i></div>
-    </div>
-    <div class="btnrow" id="ai-modal-btns">
-      <button class="btn md" id="ai-yes">Install and link</button>
-      <button class="btn md ghost" id="ai-no">Not now</button>
-    </div>
-  </div>
-</div>
-
 <!-- Scripts: order matters (core first, app last) -->
 <script src="js/core.js"></script>
 <script src="js/dashboard.js"></script>
@@ -272,8 +227,6 @@
 <script src="js/calendar.js"></script>
 <script src="js/search.js"></script>
 <script src="js/settings.js"></script>
-<script src="js/ai-tools.js"></script>
-<script src="js/ai.js"></script>
 <script src="js/drawer.js"></script>
 <script src="js/quick.js"></script>
 <script src="js/pomodoro.js"></script>

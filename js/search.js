@@ -2,7 +2,7 @@
 // search.js - the search bar (tasks, events and page shortcuts). Ctrl+K focuses it.
 // ==========================================================
 
-const PAGES = [['Dashboard', 'dash'], ['Tasks', 'tasks'], ['Calendar', 'cal'], ['AI center', 'ai'], ['Settings', 'settings']];
+const PAGES = [['Dashboard', 'dash'], ['Tasks', 'tasks'], ['Calendar', 'cal'], ['Settings', 'settings']];
 
 function runSearch() {
   const q = $('q'), res = $('res');

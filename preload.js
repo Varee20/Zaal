@@ -12,10 +12,5 @@ contextBridge.exposeInMainWorld('pc', {
   googleSync: () => ipcRenderer.invoke('google-sync'),
   quickAction: (action) => ipcRenderer.invoke('quick-action', action),
   weatherGeocode: (name) => ipcRenderer.invoke('weather-geocode', name),
-  weatherNow: (lat, lon) => ipcRenderer.invoke('weather-now', lat, lon),
-  // Local AI assistant (Ollama)
-  aiStatus: () => ipcRenderer.invoke('ai-status'),
-  aiSetup: (model) => ipcRenderer.invoke('ai-setup', model),
-  aiChat: (payload) => ipcRenderer.invoke('ai-chat', payload),
-  onAiProgress: (callback) => ipcRenderer.on('ai-progress', (event, progress) => callback(progress))
+  weatherNow: (lat, lon) => ipcRenderer.invoke('weather-now', lat, lon)
 });
