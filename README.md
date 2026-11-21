@@ -103,9 +103,18 @@ npm install
 npm start
 ```
 
-### C. Build the Linux installers yourself (for the maintainer)
+### C. Build the Linux installers (for the maintainer)
 
-The Linux files have to be built **on Linux**. A Windows PC can't build them. Use a Linux PC, a virtual machine, or WSL.
+**The easy way (automatic):** GitHub builds everything for you. After pushing your code, run:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Wait about 10 minutes (watch it on the repo's **Actions** tab). A release named `v0.1.0` then appears on the **Releases** page with the Windows installer, the `.deb` and the `.AppImage`. For the next version, change `version` in `package.json`, push, and use a new tag such as `v0.1.1`. The recipe lives in `.github/workflows/release.yml`.
+
+**The manual way:** The Linux files have to be built **on Linux**. A Windows PC can't build them. Use a Linux PC, a virtual machine, or WSL.
 
 1. Push all your latest changes to GitHub from Windows.
 2. On the Linux machine, get a fresh copy. Do not copy `node_modules` over from Windows:

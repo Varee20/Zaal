@@ -1,0 +1,62 @@
+# Builds Zaal for Windows and Linux on GitHub's own computers and puts the files on the Releases page.
+# Start it by pushing a tag that begins with "v" (for example v0.1.0), or press "Run workflow" on the Actions tab (that only builds, it doesn't publish).
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build Linux (AppImage and deb)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          node scripts/make-icon.js
+          npx electron-builder --linux AppImage deb --publish never
+
+      - name: Build Windows (installer)
+        if: matrix.os == 'windows-latest'
+        run: npx electron-builder --win nsis --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zaal-${{ matrix.os }}
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.exe
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-files
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: release-files/*
+          generate_release_notes: true
