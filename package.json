@@ -1,0 +1,46 @@
+{
+  "name": "zaal",
+  "version": "0.1.0",
+  "description": "Zaal",
+  "author": "Zaal",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis"
+  },
+  "dependencies": {
+    "systeminformation": "^5.23.0"
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.zaal.app",
+    "productName": "Zaal",
+    "electronDist": "node_modules/electron/dist",
+    "directories": { "output": "dist" },
+    "files": [
+      "main.js",
+      "ollama.js",
+      "preload.js",
+      "Zaal.ico",
+      "index.html",
+      "css/**/*",
+      "js/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "Zaal.ico"
+    },
+    "nsis": {
+      "installerIcon": "Zaal.ico",
+      "uninstallerIcon": "Zaal.ico",
+      "installerHeaderIcon": "Zaal.ico",
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}

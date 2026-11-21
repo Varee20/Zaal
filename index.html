@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Zaal</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav>
+  <h1>ZAAL</h1>
+  <button class="on" data-v="dash">Dashboard</button>
+  <button data-v="tasks">Tasks</button>
+  <button data-v="cal">Calendar</button>
+  <button data-v="ai">AI center</button>
+  <button data-v="settings">Settings</button>
+</nav>
+
+<main>
+  <!-- Top bar -->
+  <div class="top">
+    <div class="sw">
+      <input class="search" id="q" placeholder="Search tasks, events, pages...  (Ctrl+K)">
+      <div class="res" id="res"></div>
+    </div>
+    <div class="quick">
+      <button class="qbtn" data-a="lock" title="Lock"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
+      <button class="qbtn" data-a="sleep" title="Sleep"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+      <button class="qbtn warn" data-a="restart" title="Restart"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></button>
+      <button class="qbtn warn" data-a="shutdown" title="Shut down"><svg viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M6.4 6.6a8 8 0 1 0 11.2 0"/></svg></button>
+      <button class="qbtn" data-a="taskmgr" title="Task Manager"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></button>
+    </div>
+    <div class="clock" id="clock">--:--</div>
+  </div>
+
+  <!-- Dashboard: Tools, System, Drives, Internet -->
+  <section class="view on" id="dash">
+
+    <div class="h2">Tools</div>
+    <div class="tools">
+      <div class="tool">
+        <div class="tool-h">Weather</div>
+        <div class="row" id="w-set">
+          <input class="inp" id="w-city" placeholder="Your city">
+          <button class="btn" id="w-go">Set</button>
+        </div>
+        <div id="w-view">
+          <div class="w-top">
+            <span class="w-temp" id="w-temp">--</span>
+            <div><div id="w-desc"></div><div class="muted" id="w-place"></div></div>
+          </div>
+          <div class="muted" id="w-more"></div>
+          <button class="linkbtn" id="w-change">Change city</button>
+        </div>
+        <div class="muted" id="w-msg"></div>
+      </div>
+
+      <div class="tool">
+        <div class="tool-h">Battery health</div>
+        <div class="big" id="bh-val">--</div>
+        <div class="dbar"><i id="bh-bar"></i></div>
+        <div class="muted" id="bh-sub"></div>
+        <div class="muted" id="bh-more"></div>
+      </div>
+
+      <div class="tool">
+        <div class="tool-h">Focus timer</div>
+        <div class="chips">
+          <button class="chip on" id="pm-focus">Focus 25</button>
+          <button class="chip" id="pm-break">Break 5</button>
+        </div>
+        <div class="pomo-time" id="pm-time">25:00</div>
+        <div class="btnrow">
+          <button class="btn md" id="pm-start">Start</button>
+          <button class="btn md" id="pm-reset">Reset</button>
+        </div>
+        <div class="muted count" id="pm-count"></div>
+      </div>
+
+      <div class="tool">
+        <div class="tool-h">Quick note</div>
+        <textarea class="inp note" id="note" placeholder="Jot something down..."></textarea>
+      </div>
+    </div>
+
+    <div class="h2 spaced">System</div>
+    <div class="cpuname" id="cpuname">Reading hardware...</div>
+    <div class="grid">
+      <div class="card">
+        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-cpu" cx="60" cy="60" r="50" stroke="var(--white)"/></svg>
+        <div class="val" id="v-cpu">0%</div><div class="label">CPU</div><div class="sub"></div>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-gpu" cx="60" cy="60" r="50" stroke="var(--bronze)"/></svg>
+        <div class="val" id="v-gpu">--</div><div class="label">GPU</div><div class="sub" id="s-gpu"></div>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-ram" cx="60" cy="60" r="50" stroke="var(--gold)"/></svg>
+        <div class="val" id="v-ram">0%</div><div class="label">RAM</div><div class="sub" id="s-ram"></div>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-bat" cx="60" cy="60" r="50" stroke="var(--silver)"/></svg>
+        <div class="val" id="v-bat">--</div><div class="label">Battery</div><div class="sub" id="s-bat"></div>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-tmp" cx="60" cy="60" r="50" stroke="var(--champagne)"/></svg>
+        <div class="val" id="v-tmp">--</div><div class="label">Temperature</div><div class="sub" id="s-tmp"></div>
+      </div>
+    </div>
+
+    <div class="h2 spaced">Drives</div>
+    <div class="drives" id="drives"></div>
+
+    <div class="h2 spaced">Internet</div>
+    <div class="grid">
+      <div class="card">
+        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-dl" cx="60" cy="60" r="50" stroke="var(--gold)"/></svg>
+        <div class="val" id="v-dl">0</div><div class="label">Download</div><div class="sub" id="s-dl"></div>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-ul" cx="60" cy="60" r="50" stroke="var(--white)"/></svg>
+        <div class="val" id="v-ul">0</div><div class="label">Upload</div><div class="sub" id="s-ul"></div>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-wf" cx="60" cy="60" r="50" stroke="var(--champagne)"/></svg>
+        <div class="val" id="v-wf">--</div><div class="label" id="l-wf">Wi-Fi</div><div class="sub" id="s-wf"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tasks -->
+  <section class="view" id="tasks">
+    <div class="h2">Tasks</div>
+    <div class="row">
+      <input class="inp" id="t-in" placeholder="What needs doing?">
+      <button class="btn" id="t-add">Add</button>
+    </div>
+    <div class="row timerow">
+      <div id="t-date"></div>
+      <input class="inp tnum" id="t-hh" type="number" min="1" max="12" placeholder="hh">
+      <span class="muted">:</span>
+      <input class="inp tnum" id="t-mm" type="number" min="0" max="59" placeholder="mm">
+      <select class="inp ampm" id="t-ap"><option>AM</option><option>PM</option></select>
+      <input class="inp" id="t-cat" list="cat-list" placeholder="Category">
+      <datalist id="cat-list"></datalist>
+    </div>
+    <div class="chips filters" id="t-filter"></div>
+    <ul class="list" id="t-list"></ul>
+    <div class="muted count" id="t-count"></div>
+  </section>
+
+  <!-- Calendar -->
+  <section class="view" id="cal">
+    <div class="calwrap">
+      <div>
+        <div class="calhead">
+          <button class="btn sm" id="c-prev">&lt;</button>
+          <div class="h2" id="c-title"></div>
+          <button class="btn sm" id="c-next">&gt;</button>
+        </div>
+        <div class="cgrid" id="c-grid"></div>
+      </div>
+      <div>
+        <div class="h2" id="e-title"></div>
+        <div class="row timerow">
+          <input class="inp tnum" id="e-hh" type="number" min="1" max="12" placeholder="hh">
+          <span class="muted">:</span>
+          <input class="inp tnum" id="e-mm" type="number" min="0" max="59" placeholder="mm">
+          <select class="inp ampm" id="e-ap"><option>AM</option><option>PM</option></select>
+        </div>
+        <div class="row">
+          <input class="inp" id="e-in" placeholder="New event">
+          <button class="btn" id="e-add">Add</button>
+        </div>
+        <ul class="list" id="e-list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI center -->
+  <section class="view" id="ai">
+    <div class="h2">AI center</div>
+
+    <div class="panel wide">
+      <div class="ai-head">
+        <div class="h3">Zaal assistant <span class="gtag" id="ai-state">Not set up</span></div>
+        <select class="inp aisel" id="ai-model" title="AI model"></select>
+      </div>
+
+      <div id="ai-setup">
+        <div class="muted" id="ai-setup-text"></div>
+        <button class="btn md" id="ai-setup-btn">Set up the assistant</button>
+      </div>
+
+      <div class="chatlog" id="chat-log"></div>
+      <div class="row">
+        <input class="inp" id="chat-in" placeholder="Ask Zaal to add a task, set an event, organize your list...">
+        <button class="btn" id="chat-send">Send</button>
+      </div>
+      <div class="muted note">Runs on your own PC with Ollama. Nothing you write is sent online. Small AI models can make mistakes, so Zaal always asks before changing anything.</div>
+    </div>
+  </section>
+
+  <!-- Settings -->
+  <section class="view" id="settings">
+    <div class="h2">Settings</div>
+
+    <div class="panel">
+      <label class="setrow"><input type="checkbox" id="auto"><span>Launch Zaal when Windows starts</span></label>
+    </div>
+
+    <div class="panel">
+      <div class="h3">Calendar</div>
+
+      <div class="subh">Default calendar</div>
+      <label class="setrow"><input type="radio" name="calsys" value="islamic"><span>Islamic</span></label>
+      <label class="setrow"><input type="radio" name="calsys" value="american"><span>American</span></label>
+      <label class="setrow"><input type="radio" name="calsys" value="persian"><span>Persian</span></label>
+
+      <div class="subh">Holidays</div>
+      <label class="setrow"><input type="checkbox" id="cal-persian"><span>Persian</span></label>
+      <label class="setrow"><input type="checkbox" id="cal-islamic"><span>Islamic</span></label>
+      <label class="setrow"><input type="checkbox" id="cal-us"><span>American</span></label>
+
+      <div class="muted note">Islamic and Persian dates are calculated and can be off by a day.</div>
+    </div>
+  </section>
+</main>
+
+<!-- Pull-out Today panel (right side) -->
+<aside class="drawer" id="drawer">
+  <div class="drawer-in">
+    <div class="greet" id="greet">Hello</div>
+    <div class="muted" id="today-date"></div>
+    <div class="muted" id="today-alt"></div>
+    <div class="uptime" id="uptime">PC on for --</div>
+
+    <div class="h3 tight">Today</div>
+    <div class="hol-tags" id="today-hol"></div>
+    <ul class="list" id="today-events"></ul>
+
+    <div class="h3 tight">Tasks</div>
+    <ul class="list" id="today-tasks"></ul>
+  </div>
+</aside>
+<button class="handle" id="drawer-toggle" title="Today panel">&lsaquo;</button>
+
+<!-- Permission popup for the AI assistant (shown the first time the AI center is opened) -->
+<div class="modal" id="ai-modal" hidden>
+  <div class="modal-box">
+    <div class="h2" id="ai-modal-title">Set up the Zaal assistant</div>
+    <div id="ai-modal-body"></div>
+    <div id="ai-modal-progress" hidden>
+      <div class="muted" id="ai-modal-text"></div>
+      <div class="dbar"><i id="ai-modal-bar"></i></div>
+    </div>
+    <div class="btnrow" id="ai-modal-btns">
+      <button class="btn md" id="ai-yes">Install and link</button>
+      <button class="btn md ghost" id="ai-no">Not now</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts: order matters (core first, app last) -->
+<script src="js/core.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/tasks.js"></script>
+<script src="js/holidays.js"></script>
+<script src="js/calsys.js"></script>
+<script src="js/datepicker.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/search.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/ai-tools.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/drawer.js"></script>
+<script src="js/quick.js"></script>
+<script src="js/pomodoro.js"></script>
+<script src="js/notes.js"></script>
+<script src="js/weather.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
