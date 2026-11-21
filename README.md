@@ -6,11 +6,6 @@ Built with Electron and plain HTML/CSS/JS. No frameworks, no cloud accounts.
 
 > **Platform support:** Windows and Linux (Ubuntu, Debian, Mint, Fedora, Arch and most others).
 
-<p align="center">
-  <img src="Screen%20shots/Dashboard%20system.png" alt="Zaal dashboard with live CPU, GPU, RAM, battery and temperature gauges" width="49%">
-  <img src="Screen%20shots/Calendar.png" alt="Zaal calendar with per-day events" width="49%">
-</p>
-
 ## Features
 
 **Dashboard**
