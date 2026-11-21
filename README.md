@@ -4,7 +4,7 @@
 
 Built with Electron and plain HTML/CSS/JS. No frameworks, no cloud accounts.
 
-> **Platform support:** Windows today. More platforms (Linux distros) are planned.
+> **Platform support:** Windows and Linux (Ubuntu, Debian, Mint, Fedora, Arch and most others).
 
 ## Features
 
@@ -30,11 +30,11 @@ Built with Electron and plain HTML/CSS/JS. No frameworks, no cloud accounts.
 
 **Everything else**
 - Global search across tasks, events and pages (`Ctrl+K`)
-- Quick actions: lock, sleep, restart, shut down, open Task Manager
+- Quick actions: lock, sleep, restart, shut down, open the system monitor
 - Pull-out "Today" panel with greeting, date, uptime, events and tasks
-- Optional launch on Windows startup
+- Optional launch at startup
 
-## Getting started
+## Getting started (Windows)
 
 Requirements: Windows 10/11 and [Node.js](https://nodejs.org) 18 or newer.
 
@@ -57,6 +57,83 @@ The installer lands in `dist/`. On Windows you can also just run `build.bat`, wh
 
 Open the **AI center** tab and click **Set up the assistant**. Zaal will install and link Ollama for you. Small local models can make mistakes, which is why every change needs your confirmation.
 
+## Linux
+
+Zaal runs on Linux too. Pick the section that fits you.
+
+### A. Install it (for normal users)
+
+Go to the [Releases page](https://github.com/Varee20/Zaal/releases) and download one file:
+
+**Ubuntu, Debian, Linux Mint, Pop!_OS** (the `.deb` file):
+
+```bash
+sudo apt install ./zaal_0.1.0_amd64.deb
+```
+
+(Use the real file name you downloaded, and run the command in the folder where it is.) Then open **Zaal** from your app menu.
+
+**Any other distro, including Fedora and Arch** (the `.AppImage` file):
+
+```bash
+chmod +x Zaal-0.1.0.AppImage
+./Zaal-0.1.0.AppImage
+```
+
+The first line makes the file runnable, the second starts it. You can also right-click the file, open Properties, and tick "Allow executing as program".
+
+**Only for the AI center:** Zaal needs the `zstd` tool to unpack Ollama. Install it once:
+
+```bash
+sudo apt install zstd        # Ubuntu, Debian, Mint
+sudo dnf install zstd        # Fedora
+sudo pacman -S zstd          # Arch
+```
+
+If the app doesn't start, run it from a terminal (`./Zaal-0.1.0.AppImage` or `zaal`) and the error message will show up there.
+
+### B. Run it from source (for developers)
+
+You need [Node.js](https://nodejs.org) 18 or newer and git.
+
+```bash
+git clone https://github.com/Varee20/Zaal.git
+cd Zaal
+npm install
+npm start
+```
+
+### C. Build the Linux installers yourself (for the maintainer)
+
+The Linux files have to be built **on Linux**. A Windows PC can't build them. Use a Linux PC, a virtual machine, or WSL.
+
+1. Push all your latest changes to GitHub from Windows.
+2. On the Linux machine, get a fresh copy. Do not copy `node_modules` over from Windows:
+   ```bash
+   git clone https://github.com/Varee20/Zaal.git
+   cd Zaal
+   npm install
+   ```
+3. Build:
+   ```bash
+   npm run dist:linux
+   ```
+4. Your files are now in the `dist/` folder: a `.AppImage` and a `.deb`.
+5. Upload both to GitHub: open the repo, click **Releases**, then **Draft a new release**, drag in the two files and publish. Users download them from there (section A).
+
+The app icon is made automatically from `Zaal.ico` into `build/icon.png`. To use your own, put a 512x512 PNG at `build/icon.png` first.
+
+Before publishing the `.deb`, open `package.json` and change the `maintainer` line under `build` > `linux` from `noreply@example.com` to your real email.
+
+### What works differently on Linux
+
+- **GPU gauge:** works for NVIDIA and AMD. Intel graphics show `--`.
+- **Launch at startup:** adds a small file in `~/.config/autostart`. Turning it off deletes it.
+- **Lock, sleep, restart, shut down:** use `loginctl` and `systemctl`, which most distros have. The last button opens whichever system monitor your desktop has (GNOME, KDE, MATE, XFCE).
+- **AI center:** Ollama is installed into your home folder (`~/.local/share/zaal/ollama`), so no `sudo` is needed. If you already have Ollama installed, Zaal uses that instead. AMD graphics cards run the AI on the CPU for now.
+- **AppImage on Ubuntu 24.04 and newer:** it runs with Chromium's sandbox turned off, because Ubuntu blocks it for AppImages. The `.deb` doesn't have this problem, so prefer it on Ubuntu.
+- **Wi-Fi speed:** may be blank on some setups.
+
 ## Project structure
 
 ```
@@ -68,6 +145,7 @@ Zaal/
 ├── css/style.css    # Theme and layout
 ├── js/              # Renderer modules (dashboard, tasks, calendar, AI, ...)
 ├── Zaal.ico         # App icon
+├── scripts/         # make-icon.js (builds the Linux PNG icon)
 └── build.bat        # One-click Windows installer build
 ```
 

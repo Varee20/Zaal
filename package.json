@@ -24,7 +24,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win nsis"
+    "dist": "electron-builder --win nsis",
+    "dist:linux": "node scripts/make-icon.js && electron-builder --linux AppImage deb"
   },
   "dependencies": {
     "systeminformation": "^5.23.0"
@@ -43,6 +44,7 @@
       "ollama.js",
       "preload.js",
       "Zaal.ico",
+      "build/icon.png",
       "index.html",
       "css/**/*",
       "js/**/*",
@@ -51,6 +53,12 @@
     "win": {
       "target": "nsis",
       "icon": "Zaal.ico"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "build/icon.png",
+      "category": "Utility",
+      "maintainer": "Varee20 <noreply@example.com>"
     },
     "nsis": {
       "installerIcon": "Zaal.ico",

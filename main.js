@@ -7,6 +7,9 @@ const crypto = require('crypto');
 const { execFile } = require('child_process');
 const si = require('systeminformation');
 
+// AppImages can't use Chromium's sandbox on some distros (Ubuntu 24.04 and newer), so turn it off only for the AppImage
+if (process.platform === 'linux' && process.env.APPIMAGE) app.commandLine.appendSwitch('no-sandbox');
+
 // Tasks and calendar events live in data.json, Google login info lives in config.json
 const dataFile = path.join(app.getPath('userData'), 'data.json');
 const cfgFile = path.join(app.getPath('userData'), 'config.json');
@@ -31,7 +34,7 @@ function createWindow() {
     width: 1100,
     height: 700,
     backgroundColor: '#0b0b0c',
-    icon: path.join(__dirname, 'Zaal.ico'),
+    icon: path.join(__dirname, process.platform === 'linux' ? 'build/icon.png' : 'Zaal.ico'),
     autoHideMenuBar: true,
     webPreferences: { preload: path.join(__dirname, 'preload.js') }
   });
@@ -43,7 +46,26 @@ let gpuInfo = { name: '', load: null };
 let wifiInfo = null;
 
 // GPU load comes from Windows' own performance counters, so it works for NVIDIA, AMD and Intel
+// Linux: NVIDIA via nvidia-smi, AMD via the driver's gpu_busy_percent file (Intel has no simple counter, so it shows --)
+function pollGpuLinux() {
+  execFile('nvidia-smi', ['--query-gpu=utilization.gpu', '--format=csv,noheader,nounits'], { timeout: 4000 }, (err, stdout) => {
+    let v = err ? NaN : parseFloat(String(stdout).split('\n')[0]);
+    if (isNaN(v)) {
+      try {
+        for (const d of fs.readdirSync('/sys/class/drm')) {
+          if (!/^card\d+$/.test(d)) continue;
+          const f = '/sys/class/drm/' + d + '/device/gpu_busy_percent';
+          if (fs.existsSync(f)) { v = parseFloat(fs.readFileSync(f, 'utf8')); break; }
+        }
+      } catch (e) { /* no GPU counter */ }
+    }
+    gpuInfo.load = isNaN(v) ? null : Math.min(Math.max(v, 0), 100);
+    setTimeout(pollGpuLinux, 2500);
+  });
+}
+
 function pollGpu() {
+  if (process.platform === 'linux') return pollGpuLinux();
   if (process.platform !== 'win32') return;
   const script = "$s=(Get-Counter '\\GPU Engine(*engtype_3D)\\Utilization Percentage' -ErrorAction SilentlyContinue).CounterSamples; " +
     "if($s){ $m=$s | Group-Object { $_.InstanceName -replace '^pid_\\d+_(luid_\\S+?)_phys.*','$1' } | " +
@@ -72,7 +94,34 @@ function pollWifi() {
 // Network speed: read the byte counters of the real adapters (Wi-Fi / Ethernet) and measure how fast they grow
 let netInfo = { down: 0, up: 0 }; // bytes per second
 let netPrev = null;
+// Linux: add up the byte counters of the real adapters (skips loopback, Docker, VMs, VPN tunnels)
+function readNetLinux() {
+  let rx = 0, tx = 0;
+  for (const line of fs.readFileSync('/proc/net/dev', 'utf8').split('\n').slice(2)) {
+    const [name, rest] = line.split(':');
+    if (!rest) continue;
+    const n = name.trim();
+    if (n === 'lo' || /^(docker|veth|br-|virbr|tun|tap|vmnet|zt)/.test(n)) continue;
+    const f = rest.trim().split(/\s+/);
+    rx += Number(f[0]);
+    tx += Number(f[8]);
+  }
+  return [rx, tx];
+}
+
 function pollNet() {
+  if (process.platform === 'linux') {
+    try {
+      const [rx, tx] = readNetLinux();
+      const now = Date.now();
+      if (netPrev && now > netPrev.t) {
+        const dt = (now - netPrev.t) / 1000;
+        netInfo = { down: Math.max(0, (rx - netPrev.rx) / dt), up: Math.max(0, (tx - netPrev.tx) / dt) };
+      }
+      netPrev = { t: now, rx, tx };
+    } catch (e) { /* keep the last values */ }
+    return setTimeout(pollNet, 700);
+  }
   if (process.platform !== 'win32') return;
   const script = "$a = @(Get-NetAdapter -Physical | Where-Object Status -eq 'Up' | Get-NetAdapterStatistics); " +
     "($a | Measure-Object ReceivedBytes -Sum).Sum; ($a | Measure-Object SentBytes -Sum).Sum";
@@ -94,6 +143,21 @@ function pollNet() {
 // temperature, not always the exact CPU core temperature.
 let tempInfo = null; // degrees C
 function pollTemp() {
+  if (process.platform === 'linux') {
+    si.cpuTemperature().then(t => {
+      let v = t && t.main > 0 ? t.main : null;
+      if (v === null) { // fall back to the kernel's thermal zones
+        try {
+          const temps = fs.readdirSync('/sys/class/thermal').filter(d => d.startsWith('thermal_zone'))
+            .map(d => parseInt(fs.readFileSync('/sys/class/thermal/' + d + '/temp', 'utf8'), 10) / 1000)
+            .filter(x => x > 0 && x < 120);
+          if (temps.length) v = Math.max(...temps);
+        } catch (e) { /* none available */ }
+      }
+      tempInfo = v;
+    }).catch(() => { tempInfo = null; }).finally(() => setTimeout(pollTemp, 5000));
+    return;
+  }
   if (process.platform !== 'win32') return;
   const script = "$t = @(Get-CimInstance -Namespace root/wmi -ClassName MSAcpi_ThermalZoneTemperature -ErrorAction SilentlyContinue | ForEach-Object { $_.CurrentTemperature / 10 - 273.15 }); " +
     "if(-not $t){ $t = @((Get-Counter '\\Thermal Zone Information(*)\\Temperature' -ErrorAction SilentlyContinue).CounterSamples | ForEach-Object { $_.CookedValue - 273.15 }) }; " +
@@ -158,8 +222,23 @@ ipcMain.handle('save-data', (event, data) => {
 function loginOpts() {
   return app.isPackaged ? {} : { path: process.execPath, args: [app.getAppPath()] };
 }
-ipcMain.handle('get-autostart', () => app.getLoginItemSettings(loginOpts()).openAtLogin);
+// Electron can't do this on Linux, so Linux uses a .desktop file in ~/.config/autostart instead
+const autostartFile = path.join(os.homedir(), '.config', 'autostart', 'zaal.desktop');
+function linuxExec() {
+  if (process.env.APPIMAGE) return '"' + process.env.APPIMAGE + '"';
+  return app.isPackaged ? '"' + process.execPath + '"' : '"' + process.execPath + '" "' + app.getAppPath() + '"';
+}
+ipcMain.handle('get-autostart', () => (process.platform === 'linux' ? fs.existsSync(autostartFile) : app.getLoginItemSettings(loginOpts()).openAtLogin));
 ipcMain.handle('set-autostart', (event, on) => {
+  if (process.platform === 'linux') {
+    if (on) {
+      fs.mkdirSync(path.dirname(autostartFile), { recursive: true });
+      fs.writeFileSync(autostartFile, '[Desktop Entry]\nType=Application\nName=Zaal\nExec=' + linuxExec() + '\nTerminal=false\nX-GNOME-Autostart-enabled=true\n');
+    } else {
+      try { fs.unlinkSync(autostartFile); } catch (e) { /* already gone */ }
+    }
+    return true;
+  }
   app.setLoginItemSettings({ ...loginOpts(), openAtLogin: !!on });
   return true;
 });
@@ -350,6 +429,21 @@ ipcMain.handle('quick-action', async (event, action) => {
     const r = await dialog.showMessageBox(win, { type: 'question', buttons: ['Cancel', 'Yes'], defaultId: 0, cancelId: 0, title: 'Zaal', message: text });
     return r.response === 1;
   };
+  if (process.platform === 'linux') {
+    // Tries each command until one works, since desktops differ
+    const tryRun = list => {
+      if (!list.length) return;
+      execFile(list[0][0], list[0][1], err => { if (err) tryRun(list.slice(1)); });
+    };
+    switch (action) {
+      case 'lock': tryRun([['loginctl', ['lock-session']], ['xdg-screensaver', ['lock']], ['gnome-screensaver-command', ['-l']]]); break;
+      case 'sleep': tryRun([['systemctl', ['suspend']]]); break;
+      case 'restart': if (await confirm('Restart the PC now?')) tryRun([['systemctl', ['reboot']]]); break;
+      case 'shutdown': if (await confirm('Shut down the PC now?')) tryRun([['systemctl', ['poweroff']]]); break;
+      case 'taskmgr': tryRun(['gnome-system-monitor', 'plasma-systemmonitor', 'ksysguard', 'mate-system-monitor', 'xfce4-taskmanager', 'lxtask'].map(c => [c, []])); break;
+    }
+    return true;
+  }
   switch (action) {
     case 'lock': run('rundll32.exe', ['user32.dll,LockWorkStation']); break;
     case 'sleep': run('rundll32.exe', ['powrprof.dll,SetSuspendState', '0,1,0']); break;

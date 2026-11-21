@@ -11,12 +11,21 @@ const fs = require('fs');
 const { execFile, spawn } = require('child_process');
 
 const HOST = 'http://127.0.0.1:11434';
-const INSTALLER_URL = 'https://ollama.com/download/OllamaSetup.exe';
+const IS_LINUX = process.platform === 'linux';
+const LINUX_ARCH = process.arch === 'arm64' ? 'arm64' : 'amd64';
+const INSTALLER_URL = IS_LINUX
+  ? 'https://ollama.com/download/ollama-linux-' + LINUX_ARCH + '.tar.zst'
+  : 'https://ollama.com/download/OllamaSetup.exe';
 const GB = 1024 ** 3;
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const programDir = () => path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Ollama');
-const isInstalled = () => fs.existsSync(path.join(programDir(), 'ollama.exe'));
+// Windows: %LOCALAPPDATA%\Programs\Ollama. Linux: installed into your home folder, so no admin rights (sudo) needed.
+const programDir = () => IS_LINUX
+  ? path.join(os.homedir(), '.local', 'share', 'zaal', 'ollama')
+  : path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Ollama');
+// Linux: Zaal's own copy first, then one you installed yourself (for example with the official script)
+const linuxBin = () => [path.join(programDir(), 'bin', 'ollama'), '/usr/local/bin/ollama', '/usr/bin/ollama'].find(p => fs.existsSync(p)) || null;
+const isInstalled = () => (IS_LINUX ? !!linuxBin() : fs.existsSync(path.join(programDir(), 'ollama.exe')));
 
 // A model that fits this PC's memory (sizes are approximate)
 function suggestedModel() {
@@ -62,7 +71,7 @@ async function installedModels() {
 
 // ---------- Setup steps ----------
 async function downloadInstaller(send) {
-  const file = path.join(os.tmpdir(), 'OllamaSetup.exe');
+  const file = path.join(os.tmpdir(), IS_LINUX ? 'ollama-linux.tar.zst' : 'OllamaSetup.exe');
   const res = await fetch(INSTALLER_URL, { redirect: 'follow' });
   if (!res.ok || !res.body) throw new Error('Could not download Ollama (error ' + res.status + ')');
   const total = Number(res.headers.get('content-length')) || 0;
@@ -83,6 +92,7 @@ async function downloadInstaller(send) {
 
 // Windows checks that the installer is properly signed and was not changed
 function installerIsSigned(file) {
+  if (IS_LINUX) return Promise.resolve(true); // Linux has no signature to check, the download comes straight from ollama.com over https
   return new Promise(resolve => {
     const safe = file.replace(/'/g, "''");
     execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', "(Get-AuthenticodeSignature -LiteralPath '" + safe + "').Status"],
@@ -92,6 +102,15 @@ function installerIsSigned(file) {
 }
 
 function runInstaller(file) {
+  if (IS_LINUX) {
+    return new Promise((resolve, reject) => {
+      fs.mkdirSync(programDir(), { recursive: true });
+      execFile('tar', ['--zstd', '-xf', file, '-C', programDir()], { timeout: 10 * 60 * 1000 }, err => {
+        if (err) reject(new Error('Could not unpack Ollama. Zaal needs the "zstd" tool for this. Install it (for example: sudo apt install zstd), then try again.'));
+        else resolve();
+      });
+    });
+  }
   return new Promise((resolve, reject) => {
     execFile(file, ['/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/SP-'], { windowsHide: true, timeout: 10 * 60 * 1000 }, err => (err ? reject(err) : resolve()));
   });
@@ -103,10 +122,17 @@ async function ensureRunning() {
     if ((await installedModels()) !== null) return;
     await sleep(1000);
   }
-  const app = path.join(programDir(), 'ollama app.exe');
-  const child = fs.existsSync(app)
-    ? spawn(app, [], { detached: true, stdio: 'ignore', windowsHide: true })
-    : spawn(path.join(programDir(), 'ollama.exe'), ['serve'], { detached: true, stdio: 'ignore', windowsHide: true });
+  let child;
+  if (IS_LINUX) {
+    const bin = linuxBin();
+    if (!bin) throw new Error('Ollama was not found.');
+    child = spawn(bin, ['serve'], { detached: true, stdio: 'ignore' });
+  } else {
+    const app = path.join(programDir(), 'ollama app.exe');
+    child = fs.existsSync(app)
+      ? spawn(app, [], { detached: true, stdio: 'ignore', windowsHide: true })
+      : spawn(path.join(programDir(), 'ollama.exe'), ['serve'], { detached: true, stdio: 'ignore', windowsHide: true });
+  }
   child.on('error', () => {});
   child.unref();
   for (let i = 0; i < 45; i++) {
@@ -154,7 +180,7 @@ module.exports = function registerOllama(ipcMain) {
       models: models || [],
       ramGB: Math.round(os.totalmem() / GB),
       suggested: suggestedModel(),
-      supported: process.platform === 'win32'
+      supported: process.platform === 'win32' || process.platform === 'linux'
     };
   });
 

@@ -26,7 +26,7 @@ function addBubble(kind, text) {
 }
 
 function setupText() {
-  if (!aiInfo.supported) return 'The AI assistant only works on Windows for now.';
+  if (!aiInfo.supported) return 'The AI assistant only works on Windows and Linux for now.';
   if (!aiInfo.installed && !aiInfo.running) return 'The assistant needs Ollama, a free program that runs AI on your own PC. It is not installed yet.';
   if (!aiInfo.running) return 'Ollama is installed but not running.';
   return 'Ollama is running but has no AI model yet.';
