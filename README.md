@@ -2,7 +2,7 @@
 
 **Your PC's dashboard.** Live hardware stats, tasks, a multi-system calendar and a local AI assistant, in one app that runs on your machine and nowhere else.
 
-Built with Electron and plain HTML/CSS/JS. No frameworks, no cloud accounts.
+Built with Electron and plain HTML/CSS/JS.
 
 > **Platform support:** Windows and Linux (Ubuntu, Debian, Mint, Fedora, Arch and most others).
 
