@@ -59,4 +59,6 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: release-files/*
+          name: Zaal Lite ${{ github.ref_name }}
+          prerelease: true
           generate_release_notes: true
