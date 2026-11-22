@@ -1,8 +1,32 @@
 // ==========================================================
-// settings.js - the Settings page: launch with Windows, calendar options.
+// settings.js - the Settings page: launch with Windows, theme and mode, calendar options.
 // ==========================================================
 
 async function initSettings() {
+  // Customize: theme (Bronze / Silver / Gold) and mode (Dark / Light)
+  const showCustomize = () => {
+    document.querySelectorAll('.theme-opt').forEach(b => b.classList.toggle('on', b.dataset.theme === data.settings.theme));
+    document.querySelectorAll('#mode-chips .chip').forEach(b => b.classList.toggle('on', b.dataset.mode === data.settings.mode));
+  };
+  applyTheme(data.settings.theme, data.settings.mode);
+  showCustomize();
+  document.querySelectorAll('.theme-opt').forEach(b => {
+    b.onclick = () => {
+      data.settings.theme = b.dataset.theme;
+      save();
+      applyTheme(data.settings.theme, data.settings.mode);
+      showCustomize();
+    };
+  });
+  document.querySelectorAll('#mode-chips .chip').forEach(b => {
+    b.onclick = () => {
+      data.settings.mode = b.dataset.mode;
+      save();
+      applyTheme(data.settings.theme, data.settings.mode);
+      showCustomize();
+    };
+  });
+
   // Default calendar (American / Persian / Islamic)
   document.querySelectorAll('input[name="calsys"]').forEach(r => {
     r.checked = r.value === data.settings.calendar;

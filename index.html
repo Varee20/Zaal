@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Zaal</title>
 <link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
 </head>
 <body>
 
@@ -208,6 +209,23 @@
 
     <div class="panel">
       <label class="setrow"><input type="checkbox" id="auto"><span>Launch Zaal when the PC starts</span></label>
+    </div>
+
+    <div class="panel">
+      <div class="h3">Customize</div>
+
+      <div class="subh">Theme</div>
+      <div class="themes" id="theme-opts">
+        <button class="theme-opt" data-theme="bronze"><i class="swatch bronze"></i><span>Bronze</span></button>
+        <button class="theme-opt" data-theme="silver"><i class="swatch silver"></i><span>Silver</span></button>
+        <button class="theme-opt" data-theme="gold"><i class="swatch gold"></i><span>Gold</span></button>
+      </div>
+
+      <div class="subh">Mode</div>
+      <div class="chips" id="mode-chips">
+        <button class="chip" data-mode="dark">Dark</button>
+        <button class="chip" data-mode="light">Light</button>
+      </div>
     </div>
 
     <div class="panel">

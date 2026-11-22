@@ -17,7 +17,7 @@ function el(tag, cls, text) {
 }
 
 // ---------- App data (saved to disk through main.js) ----------
-const DEFAULT_SETTINGS = { calendar: 'american', persian: false, islamic: false, us: false, drawer: false, city: null, aiIntro: false, aiModel: '' };
+const DEFAULT_SETTINGS = { calendar: 'american', persian: false, islamic: false, us: false, drawer: false, city: null, aiIntro: false, aiModel: '', theme: 'gold', mode: 'dark' };
 
 let data = { tasks: [], events: [], gcal: [], note: '', pomo: { date: '', count: 0 }, settings: { ...DEFAULT_SETTINGS } };
 const allEvents = () => data.events.concat(data.gcal || []); // your events + Google events

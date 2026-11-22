@@ -29,11 +29,18 @@ const cfgFile = path.join(app.getPath('userData'), 'config.json');
   } catch (e) { /* if this fails the app just starts fresh */ }
 })();
 
+// Window colour while the page loads, so a light-mode user doesn't see a black flash
+function startBg() {
+  try {
+    return JSON.parse(fs.readFileSync(dataFile, 'utf8')).settings.mode === 'light' ? '#f5f2ea' : '#0b0b0c';
+  } catch (e) { return '#0b0b0c'; }
+}
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1100,
     height: 700,
-    backgroundColor: '#0b0b0c',
+    backgroundColor: startBg(),
     icon: path.join(__dirname, process.platform === 'linux' ? 'build/icon.png' : 'Zaal.ico'),
     autoHideMenuBar: true,
     webPreferences: { preload: path.join(__dirname, 'preload.js') }
