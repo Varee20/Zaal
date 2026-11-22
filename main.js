@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell, safeStorage, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, safeStorage, dialog, nativeTheme } = require('electron');
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
@@ -32,7 +32,9 @@ const cfgFile = path.join(app.getPath('userData'), 'config.json');
 // Window colour while the page loads, so a light-mode user doesn't see a black flash
 function startBg() {
   try {
-    return JSON.parse(fs.readFileSync(dataFile, 'utf8')).settings.mode === 'light' ? '#f5f2ea' : '#0b0b0c';
+    const mode = JSON.parse(fs.readFileSync(dataFile, 'utf8')).settings.mode;
+    const light = mode === 'system' ? !nativeTheme.shouldUseDarkColors : mode === 'light';
+    return light ? '#f5f2ea' : '#0b0b0c';
   } catch (e) { return '#0b0b0c'; }
 }
 

@@ -5,8 +5,9 @@
    ========================================================== */
 
 /* ---------- Theme + base ---------- */
-/* The accent is called --gold everywhere in this file, but each theme below changes what it is
-   (gold, bronze or silver). Dark mode is the base; light mode overrides it further down. */
+/* The accent is called --gold everywhere in this file, but it is really "the theme colour":
+   js/theme.js sets --gold and the colours worked out from it (Bronze, Titanium, Custom, ...).
+   Dark mode is the base here; light mode overrides it further down. */
 :root {
   color-scheme: dark;
   --bg: #0b0b0c;                       /* near-black */
@@ -40,27 +41,6 @@
   --drawer-bg: rgba(255, 255, 255, 0.02);
 }
 
-/* ---------- Themes (dark mode colours) ---------- */
-:root[data-theme="bronze"] {
-  --bg-glow: #2b1d12;
-  --gold: #cd7f32;
-  --gold-tint: rgba(205, 127, 50, 0.14);
-  --gold-glow: rgba(205, 127, 50, 0.30);
-  --bronze: #e0a468;
-  --champagne: #ebcaa0;
-  --silver: #b09a88;
-  --copper: #e9b44c;
-}
-:root[data-theme="silver"] {
-  --bg-glow: #1b1f27;
-  --gold: #c3c8d2;
-  --gold-tint: rgba(195, 200, 210, 0.12);
-  --gold-glow: rgba(195, 200, 210, 0.26);
-  --bronze: #8d97a8;
-  --champagne: #dde2ea;
-  --silver: #9aa1ad;
-}
-
 /* ---------- Light mode ---------- */
 :root[data-mode="light"] {
   color-scheme: light;
@@ -84,31 +64,6 @@
   --glass-text: rgba(0, 0, 0, 0.55);
   --glass-hover: rgba(0, 0, 0, 0.10);
   --drawer-bg: rgba(0, 0, 0, 0.02);
-}
-/* Light mode accents are darker so they stay readable on white */
-:root[data-mode="light"][data-theme="gold"] {
-  --gold: #a8841a;
-  --gold-tint: rgba(168, 132, 26, 0.12);
-  --gold-glow: rgba(168, 132, 26, 0.28);
-  --bronze: #8a6a35;
-  --champagne: #c9a94a;
-}
-:root[data-mode="light"][data-theme="bronze"] {
-  --gold: #a8602a;
-  --gold-tint: rgba(168, 96, 42, 0.12);
-  --gold-glow: rgba(168, 96, 42, 0.28);
-  --bronze: #7a4a22;
-  --champagne: #c98f5a;
-  --silver: #86705f;
-  --copper: #c98a1a;
-}
-:root[data-mode="light"][data-theme="silver"] {
-  --gold: #5d6675;
-  --gold-tint: rgba(93, 102, 117, 0.12);
-  --gold-glow: rgba(93, 102, 117, 0.26);
-  --bronze: #78818f;
-  --champagne: #a3abb8;
-  --silver: #8a909a;
 }
 * { box-sizing: border-box; margin: 0; }
 body {
@@ -313,9 +268,11 @@ nav button.on { color: var(--gold); background: var(--gold-tint); box-shadow: in
 .theme-opt:hover { color: var(--text); border-color: var(--silver); }
 .theme-opt.on { color: var(--gold); border-color: var(--gold); background: var(--gold-tint); box-shadow: 0 0 12px var(--gold-glow); }
 .swatch { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(128, 128, 128, 0.45); }
-.swatch.bronze { background: linear-gradient(135deg, #e0a468, #a8602a); }
-.swatch.silver { background: linear-gradient(135deg, #e1e5ec, #8d97a8); }
-.swatch.gold { background: linear-gradient(135deg, #f0d572, #b8932a); }
+.swatch.custom { background: conic-gradient(#ff5c5c, #ffd45c, #5cff8a, #5cc8ff, #8a5cff, #ff5cc8, #ff5c5c); }
+.customrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+.customrow[hidden] { display: none; }
+.customrow input[type=color] { width: 46px; height: 36px; padding: 2px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+.customrow .inp { flex: 0 0 110px; padding: 8px 12px; }
 #mode-chips .chip { padding: 8px 18px; font-size: 14px; }
 
 /* ---------- AI center ---------- */

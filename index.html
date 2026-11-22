@@ -215,16 +215,18 @@
       <div class="h3">Customize</div>
 
       <div class="subh">Theme</div>
-      <div class="themes" id="theme-opts">
-        <button class="theme-opt" data-theme="bronze"><i class="swatch bronze"></i><span>Bronze</span></button>
-        <button class="theme-opt" data-theme="silver"><i class="swatch silver"></i><span>Silver</span></button>
-        <button class="theme-opt" data-theme="gold"><i class="swatch gold"></i><span>Gold</span></button>
+      <div class="themes" id="theme-opts"></div>
+      <div class="customrow" id="custom-row" hidden>
+        <input type="color" id="custom-color" value="#7c5cff">
+        <input class="inp" id="custom-hex" maxlength="7" placeholder="#7c5cff">
+        <span class="muted">Pick any color. Zaal adjusts it a little so text stays readable.</span>
       </div>
 
       <div class="subh">Mode</div>
       <div class="chips" id="mode-chips">
         <button class="chip" data-mode="dark">Dark</button>
         <button class="chip" data-mode="light">Light</button>
+        <button class="chip" data-mode="system">Match system</button>
       </div>
     </div>
 

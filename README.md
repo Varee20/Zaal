@@ -38,7 +38,7 @@ Built with Electron and plain HTML/CSS/JS.
 - Quick actions: lock, sleep, restart, shut down, open the system monitor
 - Pull-out "Today" panel with greeting, date, uptime, events and tasks
 - Optional launch at startup
-- Customize: pick a **Bronze**, **Silver** or **Gold** theme and switch between **Dark** and **Light** mode (Settings > Customize)
+- Customize: 10 themes (Bronze, Silver, Gold, Titanium, Copper, Rose Gold, Cobalt, Verdigris, Platinum, Obsidian), a Custom theme where you pick any color, and Dark or Light mode (Settings > Customize)
 
 ## Getting started (Windows)
 
@@ -76,7 +76,7 @@ Go to the [Releases page](https://github.com/Varee20/Zaal/releases) and download
 **Ubuntu, Debian, Linux Mint, Pop!_OS** (the `.deb` file):
 
 ```bash
-sudo apt install ./zaal_0.2.0_amd64.deb
+sudo apt install ./zaal_0.2.1_amd64.deb
 ```
 
 (Use the real file name you downloaded, and run the command in the folder where it is.) Then open **Zaal** from your app menu.
@@ -84,8 +84,8 @@ sudo apt install ./zaal_0.2.0_amd64.deb
 **Any other distro, including Fedora and Arch** (the `.AppImage` file):
 
 ```bash
-chmod +x Zaal-0.2.0.AppImage
-./Zaal-0.2.0.AppImage
+chmod +x Zaal-0.2.1.AppImage
+./Zaal-0.2.1.AppImage
 ```
 
 The first line makes the file runnable, the second starts it. You can also right-click the file, open Properties, and tick "Allow executing as program".
@@ -98,7 +98,7 @@ sudo dnf install zstd        # Fedora
 sudo pacman -S zstd          # Arch
 ```
 
-If the app doesn't start, run it from a terminal (`./Zaal-0.2.0.AppImage` or `zaal`) and the error message will show up there.
+If the app doesn't start, run it from a terminal (`./Zaal-0.2.1.AppImage` or `zaal`) and the error message will show up there.
 
 ### B. Run it from source (for developers)
 
@@ -116,11 +116,11 @@ npm start
 **The easy way (automatic):** GitHub builds everything for you. After pushing your code, run:
 
 ```bash
-git tag v0.2.0
-git push origin v0.2.0
+git tag v0.2.1
+git push origin v0.2.1
 ```
 
-Wait about 10 minutes (watch it on the repo's **Actions** tab). A release named `v0.2.0` then appears on the **Releases** page with the Windows installer, the `.deb` and the `.AppImage`. For the next version, change `version` in `package.json`, push, and use a new tag such as `v0.2.1`. The recipe lives in `.github/workflows/release.yml`.
+Wait about 10 minutes (watch it on the repo's **Actions** tab). A release named `v0.2.1` then appears on the **Releases** page with the Windows installer, the `.deb` and the `.AppImage`. For the next version, change `version` in `package.json`, push, and use a new tag such as `v0.2.2`. The recipe lives in `.github/workflows/release.yml`.
 
 **The manual way:** The Linux files have to be built **on Linux**. A Windows PC can't build them. Use a Linux PC, a virtual machine, or WSL.
 
