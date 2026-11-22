@@ -8,7 +8,7 @@ Built with Electron and plain HTML/CSS/JS.
 
 <p align="center">
   <img src="Screen%20shots/dashboard.png" alt="Zaal dashboard with live CPU, GPU, RAM, battery and temperature gauges" width="49%">
-  <img src="Screen%20shots/calendar.png" alt="Zaal calendar with per-day events and task deadlines" width="49%">
+  <img src="Screen%20shots/calendar-page.png" alt="Zaal calendar with per-day events and task deadlines" width="49%">
 </p>
 
 ## Features
