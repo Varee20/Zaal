@@ -12,6 +12,7 @@ const pomoFmt = s => pad(Math.floor(s / 60)) + ':' + pad(s % 60);
 
 function pomoRender() {
   $('pm-time').textContent = pomoFmt(pomoLeft);
+  $('pm-bar').style.width = ((POMO_SECONDS[pomoMode] - pomoLeft) / POMO_SECONDS[pomoMode] * 100) + '%'; // how much of the session has passed
   $('pm-start').textContent = pomoTimer ? 'Pause' : 'Start';
   $('pm-focus').classList.toggle('on', pomoMode === 'focus');
   $('pm-break').classList.toggle('on', pomoMode === 'break');

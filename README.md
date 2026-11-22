@@ -7,8 +7,8 @@ Built with Electron and plain HTML/CSS/JS.
 > **Platform support:** Windows and Linux (Ubuntu, Debian, Mint, Fedora, Arch and most others).
 
 <p align="center">
-  <img src="Screen%20shots/Dashboard%20system.png" alt="Zaal dashboard with live CPU, GPU, RAM, battery and temperature gauges" width="49%">
-  <img src="Screen%20shots/Calendar.png" alt="Zaal calendar with per-day events" width="49%">
+  <img src="Screen%20shots/dashboard.png" alt="Zaal dashboard with live CPU, GPU, RAM, battery and temperature gauges" width="49%">
+  <img src="Screen%20shots/calendar.png" alt="Zaal calendar with per-day events and task deadlines" width="49%">
 </p>
 
 ## Features
@@ -20,8 +20,8 @@ Built with Electron and plain HTML/CSS/JS.
 - Tools: weather, battery health, focus (Pomodoro) timer, quick note
 
 **Tasks**
-- Add tasks with a date, time and category
-- Filter by category
+- Add tasks with a deadline (date and time), a category, a priority (Low, Medium, High) and subtasks
+- Edit tasks, filter by category, and see deadlines on the calendar
 
 **Calendar**
 - Islamic, Persian and American (Gregorian) calendar systems
@@ -38,7 +38,36 @@ Built with Electron and plain HTML/CSS/JS.
 - Quick actions: lock, sleep, restart, shut down, open the system monitor
 - Pull-out "Today" panel with greeting, date, uptime, events and tasks
 - Optional launch at startup
-- Customize: 10 themes (Bronze, Silver, Gold, Titanium, Copper, Rose Gold, Cobalt, Verdigris, Platinum, Obsidian), a Custom theme where you pick any color, and Dark or Light mode (Settings > Customize)
+- Customize: 10 themes (Bronze, Silver, Gold, Titanium, Copper, Rose Gold, Cobalt, Verdigris, Platinum, Obsidian), a Custom theme where you pick any color, and Dark, Light or Match system mode (Settings > Customize)
+
+## What's new
+
+### v0.3.0
+- **No more system-looking controls.** The hour/minute boxes, the dropdown lists (Year, Month, Day, AM/PM, AI model) and the category suggestions are now Zaal's own and follow your theme, in dark and light.
+  - Hour and minute boxes have themed up/down buttons, and also work with the arrow keys and mouse wheel. Minutes show as `05`, and 12 wraps back to 1.
+  - Dropdowns open a themed list you can use with the keyboard (arrows, Enter, Esc) or by typing to jump (`14` jumps to 1404).
+- **A full visual polish of the whole app:**
+  - New sidebar with a logo, icons, a glowing active marker, and the version number at the bottom.
+  - Redesigned top bar: search with a `Ctrl K` hint, grouped quick-action buttons, and the date under the clock.
+  - Every page has a proper title. Cards, tiles and panels have soft lighting, depth and a faint grid behind them.
+  - Gauges have a glow and a dashed outer ring, and cards lift when you hover them.
+  - Redesigned task cards with a priority bar, a round priority control and themed checkboxes. The calendar has bigger, softer day cells.
+  - Settings use switches and segmented buttons. The AI chat, the Today panel and the popup got the same treatment.
+  - Pages fade in and the popups animate. Everything respects "reduce motion".
+- The focus timer has a progress bar.
+- The window now has a minimum size so the layout never breaks.
+
+### v0.2.1
+- **7 new themes:** Titanium, Copper, Rose Gold, Cobalt, Verdigris, Platinum and Obsidian. With Bronze, Silver and Gold that makes 10.
+- **Custom theme:** pick any color you like. Zaal works out the rest of the colors from it and adjusts it a little so text stays readable in dark and light mode.
+- **Match system mode:** next to Dark and Light, follows your PC's dark/light setting and switches with it.
+- **Bronze looks different now:** it's a muted brown-gold so it no longer looks like the new red-orange Copper.
+- Themes are now defined in one table in `js/theme.js`, so adding a new one takes a single line.
+
+### v0.2.0
+- **Themes:** new Customize section in Settings with Bronze, Silver and Gold themes.
+- **Dark and Light mode:** switch the whole app between them.
+- The window opens in the right color, so there's no dark flash if you use light mode.
 
 ## Getting started (Windows)
 
@@ -59,7 +88,7 @@ npm run dist
 
 The installer lands in `dist/`. On Windows you can also just run `build.bat`, which re-launches itself as admin (needed once for the icon tooling) and uses npm mirrors for networks where GitHub downloads fail.
 
-Or go to the [Releases page](https://github.com/Varee20/Zaal/releases) and download
+Or go to the [Releases page](https://github.com/Varee20/Zaal/releases), open the latest release and download the `.exe` installer. Run it and Zaal installs and opens.
 
 ### AI assistant setup
 
@@ -76,7 +105,7 @@ Go to the [Releases page](https://github.com/Varee20/Zaal/releases) and download
 **Ubuntu, Debian, Linux Mint, Pop!_OS** (the `.deb` file):
 
 ```bash
-sudo apt install ./zaal_0.2.1_amd64.deb
+sudo apt install ./zaal_0.3.0_amd64.deb
 ```
 
 (Use the real file name you downloaded, and run the command in the folder where it is.) Then open **Zaal** from your app menu.
@@ -84,8 +113,8 @@ sudo apt install ./zaal_0.2.1_amd64.deb
 **Any other distro, including Fedora and Arch** (the `.AppImage` file):
 
 ```bash
-chmod +x Zaal-0.2.1.AppImage
-./Zaal-0.2.1.AppImage
+chmod +x Zaal-0.3.0.AppImage
+./Zaal-0.3.0.AppImage
 ```
 
 The first line makes the file runnable, the second starts it. You can also right-click the file, open Properties, and tick "Allow executing as program".
@@ -98,7 +127,7 @@ sudo dnf install zstd        # Fedora
 sudo pacman -S zstd          # Arch
 ```
 
-If the app doesn't start, run it from a terminal (`./Zaal-0.2.1.AppImage` or `zaal`) and the error message will show up there.
+If the app doesn't start, run it from a terminal (`./Zaal-0.3.0.AppImage` or `zaal`) and the error message will show up there.
 
 ### B. Run it from source (for developers)
 
@@ -116,11 +145,11 @@ npm start
 **The easy way (automatic):** GitHub builds everything for you. After pushing your code, run:
 
 ```bash
-git tag v0.2.1
-git push origin v0.2.1
+git tag v0.3.0
+git push origin v0.3.0
 ```
 
-Wait about 10 minutes (watch it on the repo's **Actions** tab). A release named `v0.2.1` then appears on the **Releases** page with the Windows installer, the `.deb` and the `.AppImage`. For the next version, change `version` in `package.json`, push, and use a new tag such as `v0.2.2`. The recipe lives in `.github/workflows/release.yml`.
+Wait about 10 minutes (watch it on the repo's **Actions** tab). A release named `v0.3.0` then appears on the **Releases** page with the Windows installer, the `.deb` and the `.AppImage`. For the next version, change `version` in `package.json`, push, and use a new tag such as `v0.3.1`. The recipe lives in `.github/workflows/release.yml`.
 
 **The manual way:** The Linux files have to be built **on Linux**. A Windows PC can't build them. Use a Linux PC, a virtual machine, or WSL.
 
@@ -160,7 +189,7 @@ Zaal/
 ├── ollama.js        # Local AI (Ollama) integration
 ├── index.html       # App shell
 ├── css/style.css    # Theme and layout
-├── js/              # Renderer modules (dashboard, tasks, calendar, AI, ...)
+├── js/              # Renderer modules (dashboard, tasks, calendar, AI, theme, ui controls, ...)
 ├── Zaal.ico         # App icon
 ├── scripts/         # make-icon.js (builds the Linux PNG icon)
 └── build.bat        # One-click Windows installer build

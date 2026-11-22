@@ -44,7 +44,7 @@ async function refreshAI() {
   picker.innerHTML = '';
   models.forEach(m => { const o = el('option', '', m); o.value = m; picker.append(o); });
   picker.value = aiModel;
-  picker.style.display = models.length > 1 ? '' : 'none';
+  (picker.closest('.dd') || picker).style.display = models.length > 1 ? '' : 'none'; // hide the whole dropdown, not just the hidden <select>
 
   $('ai-state').textContent = aiReady ? 'Ready' : aiInfo.running ? 'No model yet' : aiInfo.installed ? 'Not running' : 'Not set up';
   $('ai-setup').style.display = aiReady ? 'none' : 'block';

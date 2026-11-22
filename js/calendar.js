@@ -90,7 +90,8 @@ function renderEvents() {
     } else if (e.source === 'google') {
       li.append(el('span', 'gtag', 'Google')); // Google events are read-only
     } else {
-      const remove = el('button', 'x', '\u2715');
+      const remove = el('button', 'x');
+      remove.innerHTML = icon('close');
       remove.onclick = () => { data.events = data.events.filter(k => k.id !== e.id); save(); renderCal(); };
       li.append(remove);
     }

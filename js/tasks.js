@@ -56,8 +56,12 @@ function tasksChanged() {
 }
 
 // ---------- Categories ----------
+function taskCategories() {
+  return [...new Set(data.tasks.map(t => t.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+}
+
 function renderCategoryUI() {
-  const cats = [...new Set(data.tasks.map(t => t.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const cats = taskCategories();
   if (taskFilter !== 'All' && !cats.includes(taskFilter)) taskFilter = 'All';
 
   const box = $('t-filter');
@@ -69,17 +73,15 @@ function renderCategoryUI() {
       box.append(b);
     });
   }
-
-  const dl = $('cat-list');
-  dl.innerHTML = '';
-  cats.forEach(c => { const o = el('option'); o.value = c; dl.append(o); });
 }
 
 // ---------- One task ----------
 function priorityBox(t) {
   const box = el('div', 'prio');
-  const up = el('button', 'pbtn', '\u25B2');
-  const down = el('button', 'pbtn', '\u25BC');
+  const up = el('button', 'pbtn');
+  const down = el('button', 'pbtn');
+  up.innerHTML = icon('up');
+  down.innerHTML = icon('down');
   up.title = 'Raise priority';
   down.title = 'Lower priority';
   up.disabled = t.priority >= 2;
@@ -99,10 +101,12 @@ function taskCard(t) {
   check.type = 'checkbox';
   check.checked = t.done;
   check.onchange = () => { t.done = check.checked; tasksChanged(); };
-  const edit = el('button', 'x', '\u270E');
+  const edit = el('button', 'x edit');
+  edit.innerHTML = icon('edit');
   edit.title = 'Edit';
   edit.onclick = () => { editingId = t.id; renderTasks(); };
-  const del = el('button', 'x', '\u2715');
+  const del = el('button', 'x');
+  del.innerHTML = icon('close');
   del.title = 'Delete';
   del.onclick = () => { data.tasks = data.tasks.filter(k => k.id !== t.id); tasksChanged(); };
   top.append(check, el('span', 't', t.text), priorityBox(t), edit, del);
@@ -129,7 +133,8 @@ function taskCard(t) {
       c.type = 'checkbox';
       c.checked = s.done;
       c.onchange = () => { s.done = c.checked; tasksChanged(); };
-      const x = el('button', 'x', '\u2715');
+      const x = el('button', 'x');
+      x.innerHTML = icon('close');
       x.onclick = () => { t.subs = t.subs.filter(k => k.id !== s.id); tasksChanged(); };
       row.append(c, el('span', '', s.text), x);
       subs.append(row);
@@ -162,18 +167,21 @@ function editCard(t) {
   const when = el('div', 'row timerow');
   const date = makeDatePicker();
   date.set(t.date);
-  const hh = el('input', 'inp tnum');
-  hh.type = 'number'; hh.min = '1'; hh.max = '12'; hh.placeholder = 'hh';
-  const mm = el('input', 'inp tnum');
-  mm.type = 'number'; mm.min = '0'; mm.max = '59'; mm.placeholder = 'mm';
+  const hh = el('input', 'inp');
+  hh.min = '1'; hh.max = '12'; hh.placeholder = 'hh';
+  const mm = el('input', 'inp');
+  mm.min = '0'; mm.max = '59'; mm.placeholder = 'mm'; mm.dataset.pad = '1';
   const ap = el('select', 'inp ampm');
   ap.innerHTML = '<option>AM</option><option>PM</option>';
+  const hhBox = enhanceNumber(hh);
+  const mmBox = enhanceNumber(mm);
+  const apBox = enhanceSelect(ap);
   timeToBoxes(t.time, hh, mm, ap);
   const cat = el('input', 'inp');
-  cat.setAttribute('list', 'cat-list');
   cat.placeholder = 'Category';
   cat.value = t.category;
-  when.append(date.el, hh, el('span', 'muted', ':'), mm, ap, cat);
+  const catBox = attachSuggest(cat, taskCategories);
+  when.append(date.el, hhBox, el('span', 'muted', ':'), mmBox, apBox, catBox);
 
   // subtasks are edited on a copy and only applied when you press Save
   const draft = t.subs.map(s => ({ ...s }));
@@ -186,7 +194,8 @@ function editCard(t) {
       i.value = s.text;
       i.placeholder = 'Subtask';
       i.oninput = () => { s.text = i.value; };
-      const x = el('button', 'x', '\u2715');
+      const x = el('button', 'x');
+      x.innerHTML = icon('close');
       x.onclick = () => { draft.splice(draft.indexOf(s), 1); drawSubs(); };
       r.append(i, x);
       subBox.append(r);

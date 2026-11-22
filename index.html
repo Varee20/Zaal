@@ -10,19 +10,34 @@
 
 <!-- Sidebar -->
 <nav>
-  <h1>ZAAL</h1>
-  <button class="on" data-v="dash">Dashboard</button>
-  <button data-v="tasks">Tasks</button>
-  <button data-v="cal">Calendar</button>
-  <button data-v="ai">AI center</button>
-  <button data-v="settings">Settings</button>
+  <div class="brand">
+    <div class="logo"><svg viewBox="0 0 32 32"><path d="M16 2.5l11 6.3v12.8L16 29.5 5 21.6V8.8z"/><path d="M11.5 11.5h9l-9 9h9"/></svg></div>
+    <div>
+      <h1>ZAAL</h1>
+      <div class="tag">PC command center</div>
+    </div>
+  </div>
+
+  <div class="navlist">
+    <button class="on" data-v="dash">Dashboard</button>
+    <button data-v="tasks">Tasks</button>
+    <button data-v="cal">Calendar</button>
+    <button data-v="ai">AI center</button>
+    <button data-v="settings">Settings</button>
+  </div>
+
+  <div class="navfoot">
+    <span class="live"></span><span>Live</span>
+    <span class="ver" id="ver"></span>
+  </div>
 </nav>
 
 <main>
   <!-- Top bar -->
   <div class="top">
     <div class="sw">
-      <input class="search" id="q" placeholder="Search tasks, events, pages...  (Ctrl+K)">
+      <input class="search" id="q" placeholder="Search tasks, events, pages...">
+      <kbd class="kbd">Ctrl K</kbd>
       <div class="res" id="res"></div>
     </div>
     <div class="quick">
@@ -32,11 +47,18 @@
       <button class="qbtn warn" data-a="shutdown" title="Shut down"><svg viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M6.4 6.6a8 8 0 1 0 11.2 0"/></svg></button>
       <button class="qbtn" data-a="taskmgr" title="Task manager"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></button>
     </div>
-    <div class="clock" id="clock">--:--</div>
+    <div class="clockbox">
+      <div class="clock" id="clock">--:--</div>
+      <div class="cdate" id="cdate"></div>
+    </div>
   </div>
 
   <!-- Dashboard: Tools, System, Drives, Internet -->
   <section class="view on" id="dash">
+    <div class="page-h">
+      <div class="page-t">Dashboard</div>
+      <div class="page-s">A live look at your PC, plus a few handy tools.</div>
+    </div>
 
     <div class="h2">Tools</div>
     <div class="tools">
@@ -72,9 +94,10 @@
           <button class="chip" id="pm-break">Break 5</button>
         </div>
         <div class="pomo-time" id="pm-time">25:00</div>
+        <div class="dbar"><i id="pm-bar"></i></div>
         <div class="btnrow">
           <button class="btn md" id="pm-start">Start</button>
-          <button class="btn md" id="pm-reset">Reset</button>
+          <button class="btn md ghost" id="pm-reset">Reset</button>
         </div>
         <div class="muted count" id="pm-count"></div>
       </div>
@@ -89,24 +112,39 @@
     <div class="cpuname" id="cpuname">Reading hardware...</div>
     <div class="grid">
       <div class="card">
-        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-cpu" cx="60" cy="60" r="50" stroke="var(--white)"/></svg>
-        <div class="val" id="v-cpu">0%</div><div class="label">CPU</div><div class="sub"></div>
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-cpu" cx="60" cy="60" r="50" stroke="var(--white)"/></svg>
+          <div class="val" id="v-cpu">0%</div>
+        </div>
+        <div class="label">CPU</div><div class="sub"></div>
       </div>
       <div class="card">
-        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-gpu" cx="60" cy="60" r="50" stroke="var(--bronze)"/></svg>
-        <div class="val" id="v-gpu">--</div><div class="label">GPU</div><div class="sub" id="s-gpu"></div>
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-gpu" cx="60" cy="60" r="50" stroke="var(--bronze)"/></svg>
+          <div class="val" id="v-gpu">--</div>
+        </div>
+        <div class="label">GPU</div><div class="sub" id="s-gpu"></div>
       </div>
       <div class="card">
-        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-ram" cx="60" cy="60" r="50" stroke="var(--gold)"/></svg>
-        <div class="val" id="v-ram">0%</div><div class="label">RAM</div><div class="sub" id="s-ram"></div>
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-ram" cx="60" cy="60" r="50" stroke="var(--gold)"/></svg>
+          <div class="val" id="v-ram">0%</div>
+        </div>
+        <div class="label">RAM</div><div class="sub" id="s-ram"></div>
       </div>
       <div class="card">
-        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-bat" cx="60" cy="60" r="50" stroke="var(--silver)"/></svg>
-        <div class="val" id="v-bat">--</div><div class="label">Battery</div><div class="sub" id="s-bat"></div>
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-bat" cx="60" cy="60" r="50" stroke="var(--silver)"/></svg>
+          <div class="val" id="v-bat">--</div>
+        </div>
+        <div class="label">Battery</div><div class="sub" id="s-bat"></div>
       </div>
       <div class="card">
-        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-tmp" cx="60" cy="60" r="50" stroke="var(--champagne)"/></svg>
-        <div class="val" id="v-tmp">--</div><div class="label">Temperature</div><div class="sub" id="s-tmp"></div>
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-tmp" cx="60" cy="60" r="50" stroke="var(--champagne)"/></svg>
+          <div class="val" id="v-tmp">--</div>
+        </div>
+        <div class="label">Temperature</div><div class="sub" id="s-tmp"></div>
       </div>
     </div>
 
@@ -116,36 +154,51 @@
     <div class="h2 spaced">Internet</div>
     <div class="grid">
       <div class="card">
-        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-dl" cx="60" cy="60" r="50" stroke="var(--gold)"/></svg>
-        <div class="val" id="v-dl">0</div><div class="label">Download</div><div class="sub" id="s-dl"></div>
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-dl" cx="60" cy="60" r="50" stroke="var(--gold)"/></svg>
+          <div class="val" id="v-dl">0</div>
+        </div>
+        <div class="label">Download</div><div class="sub" id="s-dl"></div>
       </div>
       <div class="card">
-        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-ul" cx="60" cy="60" r="50" stroke="var(--white)"/></svg>
-        <div class="val" id="v-ul">0</div><div class="label">Upload</div><div class="sub" id="s-ul"></div>
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-ul" cx="60" cy="60" r="50" stroke="var(--white)"/></svg>
+          <div class="val" id="v-ul">0</div>
+        </div>
+        <div class="label">Upload</div><div class="sub" id="s-ul"></div>
       </div>
       <div class="card">
-        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-wf" cx="60" cy="60" r="50" stroke="var(--champagne)"/></svg>
-        <div class="val" id="v-wf">--</div><div class="label" id="l-wf">Wi-Fi</div><div class="sub" id="s-wf"></div>
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-wf" cx="60" cy="60" r="50" stroke="var(--champagne)"/></svg>
+          <div class="val" id="v-wf">--</div>
+        </div>
+        <div class="label" id="l-wf">Wi-Fi</div><div class="sub" id="s-wf"></div>
       </div>
     </div>
   </section>
 
   <!-- Tasks -->
   <section class="view" id="tasks">
-    <div class="h2">Tasks</div>
-    <div class="row">
-      <input class="inp" id="t-in" placeholder="What needs doing?">
-      <button class="btn" id="t-add">Add</button>
+    <div class="page-h">
+      <div class="page-t">Tasks</div>
+      <div class="page-s">Plan your work, set priorities and never miss a deadline.</div>
     </div>
-    <div class="row timerow">
-      <div id="t-date"></div>
-      <input class="inp tnum" id="t-hh" type="number" min="1" max="12" placeholder="hh">
-      <span class="muted">:</span>
-      <input class="inp tnum" id="t-mm" type="number" min="0" max="59" placeholder="mm">
-      <select class="inp ampm" id="t-ap"><option>AM</option><option>PM</option></select>
-      <input class="inp" id="t-cat" list="cat-list" placeholder="Category">
-      <datalist id="cat-list"></datalist>
+
+    <div class="panel composer">
+      <div class="row">
+        <input class="inp" id="t-in" placeholder="What needs doing?">
+        <button class="btn" id="t-add">Add task</button>
+      </div>
+      <div class="row timerow">
+        <div id="t-date"></div>
+        <input class="inp" id="t-hh" type="text" min="1" max="12" placeholder="hh">
+        <span class="muted">:</span>
+        <input class="inp" id="t-mm" type="text" min="0" max="59" data-pad="1" placeholder="mm">
+        <select class="inp ampm" id="t-ap"><option>AM</option><option>PM</option></select>
+        <input class="inp" id="t-cat" placeholder="Category">
+      </div>
     </div>
+
     <div class="chips filters" id="t-filter"></div>
     <ul class="list" id="t-list"></ul>
     <div class="muted count" id="t-count"></div>
@@ -153,21 +206,26 @@
 
   <!-- Calendar -->
   <section class="view" id="cal">
+    <div class="page-h">
+      <div class="page-t">Calendar</div>
+      <div class="page-s">Your days, events and task deadlines in one place.</div>
+    </div>
+
     <div class="calwrap">
-      <div>
+      <div class="panel calcard">
         <div class="calhead">
-          <button class="btn sm" id="c-prev">&lt;</button>
-          <div class="h2" id="c-title"></div>
-          <button class="btn sm" id="c-next">&gt;</button>
+          <button class="btn sm ghost icon" id="c-prev" title="Previous month"></button>
+          <div class="h2 big" id="c-title"></div>
+          <button class="btn sm ghost icon" id="c-next" title="Next month"></button>
         </div>
         <div class="cgrid" id="c-grid"></div>
       </div>
-      <div>
-        <div class="h2" id="e-title"></div>
+      <div class="panel">
+        <div class="h2 big dayhead" id="e-title"></div>
         <div class="row timerow">
-          <input class="inp tnum" id="e-hh" type="number" min="1" max="12" placeholder="hh">
+          <input class="inp" id="e-hh" type="text" min="1" max="12" placeholder="hh">
           <span class="muted">:</span>
-          <input class="inp tnum" id="e-mm" type="number" min="0" max="59" placeholder="mm">
+          <input class="inp" id="e-mm" type="text" min="0" max="59" data-pad="1" placeholder="mm">
           <select class="inp ampm" id="e-ap"><option>AM</option><option>PM</option></select>
         </div>
         <div class="row">
@@ -181,7 +239,10 @@
 
   <!-- AI center -->
   <section class="view" id="ai">
-    <div class="h2">AI center</div>
+    <div class="page-h">
+      <div class="page-t">AI center</div>
+      <div class="page-s">A private assistant that runs on your own PC.</div>
+    </div>
 
     <div class="panel wide">
       <div class="ai-head">
@@ -197,7 +258,7 @@
       <div class="chatlog" id="chat-log"></div>
       <div class="row">
         <input class="inp" id="chat-in" placeholder="Ask Zaal to add a task, set an event, organize your list...">
-        <button class="btn" id="chat-send">Send</button>
+        <button class="btn icon" id="chat-send" title="Send"></button>
       </div>
       <div class="muted note">Runs on your own PC with Ollama. Nothing you write is sent online. Small AI models can make mistakes, so Zaal always asks before changing anything.</div>
     </div>
@@ -205,45 +266,56 @@
 
   <!-- Settings -->
   <section class="view" id="settings">
-    <div class="h2">Settings</div>
-
-    <div class="panel">
-      <label class="setrow"><input type="checkbox" id="auto"><span>Launch Zaal when the PC starts</span></label>
+    <div class="page-h">
+      <div class="page-t">Settings</div>
+      <div class="page-s">Make Zaal look and behave the way you like.</div>
     </div>
 
-    <div class="panel">
-      <div class="h3">Customize</div>
-
-      <div class="subh">Theme</div>
-      <div class="themes" id="theme-opts"></div>
-      <div class="customrow" id="custom-row" hidden>
-        <input type="color" id="custom-color" value="#7c5cff">
-        <input class="inp" id="custom-hex" maxlength="7" placeholder="#7c5cff">
-        <span class="muted">Pick any color. Zaal adjusts it a little so text stays readable.</span>
+    <div class="setgrid">
+      <div class="panel">
+        <div class="h3">General</div>
+        <label class="setrow">
+          <span class="setlabel">Launch Zaal when the PC starts<small>Opens in the background after you sign in.</small></span>
+          <input type="checkbox" id="auto">
+        </label>
       </div>
 
-      <div class="subh">Mode</div>
-      <div class="chips" id="mode-chips">
-        <button class="chip" data-mode="dark">Dark</button>
-        <button class="chip" data-mode="light">Light</button>
-        <button class="chip" data-mode="system">Match system</button>
+      <div class="panel wide-col">
+        <div class="h3">Customize</div>
+
+        <div class="subh">Theme</div>
+        <div class="themes" id="theme-opts"></div>
+        <div class="customrow" id="custom-row" hidden>
+          <input type="color" id="custom-color" value="#7c5cff">
+          <input class="inp" id="custom-hex" maxlength="7" placeholder="#7c5cff">
+          <span class="muted">Pick any color. Zaal adjusts it a little so text stays readable.</span>
+        </div>
+
+        <div class="subh">Mode</div>
+        <div class="chips" id="mode-chips">
+          <button class="chip" data-mode="dark">Dark</button>
+          <button class="chip" data-mode="light">Light</button>
+          <button class="chip" data-mode="system">Match system</button>
+        </div>
       </div>
-    </div>
 
-    <div class="panel">
-      <div class="h3">Calendar</div>
+      <div class="panel">
+        <div class="h3">Calendar</div>
 
-      <div class="subh">Default calendar</div>
-      <label class="setrow"><input type="radio" name="calsys" value="islamic"><span>Islamic</span></label>
-      <label class="setrow"><input type="radio" name="calsys" value="american"><span>American</span></label>
-      <label class="setrow"><input type="radio" name="calsys" value="persian"><span>Persian</span></label>
+        <div class="subh">Default calendar</div>
+        <div class="seg">
+          <label><input type="radio" name="calsys" value="american"><span>American</span></label>
+          <label><input type="radio" name="calsys" value="persian"><span>Persian</span></label>
+          <label><input type="radio" name="calsys" value="islamic"><span>Islamic</span></label>
+        </div>
 
-      <div class="subh">Holidays</div>
-      <label class="setrow"><input type="checkbox" id="cal-persian"><span>Persian</span></label>
-      <label class="setrow"><input type="checkbox" id="cal-islamic"><span>Islamic</span></label>
-      <label class="setrow"><input type="checkbox" id="cal-us"><span>American</span></label>
+        <div class="subh">Holidays</div>
+        <label class="setrow"><span class="setlabel">Persian</span><input type="checkbox" id="cal-persian"></label>
+        <label class="setrow"><span class="setlabel">Islamic</span><input type="checkbox" id="cal-islamic"></label>
+        <label class="setrow"><span class="setlabel">American</span><input type="checkbox" id="cal-us"></label>
 
-      <div class="muted note">Islamic and Persian dates are calculated and can be off by a day.</div>
+        <div class="muted note">Islamic and Persian dates are calculated and can be off by a day.</div>
+      </div>
     </div>
   </section>
 </main>
@@ -264,12 +336,12 @@
     <ul class="list" id="today-tasks"></ul>
   </div>
 </aside>
-<button class="handle" id="drawer-toggle" title="Today panel">&lsaquo;</button>
+<button class="handle" id="drawer-toggle" title="Today panel"></button>
 
 <!-- Permission popup for the AI assistant (shown the first time the AI center is opened) -->
 <div class="modal" id="ai-modal" hidden>
   <div class="modal-box">
-    <div class="h2" id="ai-modal-title">Set up the Zaal assistant</div>
+    <div class="h2 big" id="ai-modal-title">Set up the Zaal assistant</div>
     <div id="ai-modal-body"></div>
     <div id="ai-modal-progress" hidden>
       <div class="muted" id="ai-modal-text"></div>
@@ -284,6 +356,7 @@
 
 <!-- Scripts: order matters (core first, app last) -->
 <script src="js/core.js"></script>
+<script src="js/ui.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/tasks.js"></script>
 <script src="js/holidays.js"></script>

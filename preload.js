@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('pc', {
+  getVersion: () => ipcRenderer.invoke('app-version'),
   getStats: () => ipcRenderer.invoke('get-stats'),
   loadData: () => ipcRenderer.invoke('load-data'),
   saveData: (data) => ipcRenderer.invoke('save-data', data),

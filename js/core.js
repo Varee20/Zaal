@@ -57,6 +57,6 @@ function timeToBoxes(t, hh, mm, ap) {
   if (!t) { hh.value = ''; mm.value = ''; ap.value = 'AM'; return; }
   const [h, m] = t.split(':').map(Number);
   hh.value = String(h % 12 || 12);
-  mm.value = String(m);
+  mm.value = pad(m);
   ap.value = h >= 12 ? 'PM' : 'AM';
 }

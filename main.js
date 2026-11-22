@@ -38,10 +38,15 @@ function startBg() {
   } catch (e) { return '#0b0b0c'; }
 }
 
+// The version number shown at the bottom of the sidebar
+ipcMain.handle('app-version', () => app.getVersion());
+
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1100,
-    height: 700,
+    width: 1180,
+    height: 760,
+    minWidth: 960,
+    minHeight: 620,
     backgroundColor: startBg(),
     icon: path.join(__dirname, process.platform === 'linux' ? 'build/icon.png' : 'Zaal.ico'),
     autoHideMenuBar: true,

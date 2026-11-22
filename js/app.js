@@ -3,13 +3,16 @@
 // ==========================================================
 
 function tick() {
-  $('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const now = new Date();
+  $('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  $('cdate').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 // Live parts that don't need saved data
 tick();
 setInterval(tick, 10000);
 startDashboard();
+initUI(); // themed dropdowns, number boxes and icons (js/ui.js)
 
 // Button / input handlers
 initTasks();

@@ -67,7 +67,7 @@ function renderToday() {
 
 function setDrawer(open) {
   document.body.classList.toggle('drawer-open', open);
-  $('drawer-toggle').innerHTML = open ? '&rsaquo;' : '&lsaquo;';
+  $('drawer-toggle').innerHTML = icon(open ? 'right' : 'left');
 }
 
 function initDrawer() {

@@ -10,10 +10,11 @@ function makeDatePicker(persistent) {
   const day = el('select', 'inp dsel dday');
   const month = el('select', 'inp dsel dmonth');
   const year = el('select', 'inp dsel dyear');
-  const clear = el('button', 'x', '\u2715');
+  const clear = el('button', 'x');
+  clear.innerHTML = icon('close');
   clear.title = 'Clear date';
   const box = el('div', 'datepick');
-  box.append(day, month, year, clear);
+  box.append(enhanceSelect(day), enhanceSelect(month), enhanceSelect(year), clear); // themed dropdowns (js/ui.js)
 
   let value = ''; // "YYYY-MM-DD" (American date) or ""
 
