@@ -2,32 +2,38 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Zaal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zaal Mini</title>
 <link rel="stylesheet" href="css/style.css">
+<script src="js/platform.js"></script>
+<script src="js/langs.js"></script>
+<script src="js/langs-native.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/theme.js"></script>
 </head>
 <body>
 
-<!-- Sidebar -->
-<nav>
+<!-- Menu drawer (pulls out from the left, or the right in Persian / Arabic) -->
+<nav id="nav">
   <div class="brand">
     <div class="logo"><svg viewBox="0 0 32 32"><path d="M16 2.5l11 6.3v12.8L16 29.5 5 21.6V8.8z"/><path d="M11.5 11.5h9l-9 9h9"/></svg></div>
     <div>
       <h1>ZAAL</h1>
-      <div class="tag">PC command center</div>
+      <div class="tag">Mini</div>
     </div>
   </div>
 
   <div class="navlist">
-    <button class="on" data-v="dash">Dashboard</button>
-    <button data-v="tasks">Tasks</button>
-    <button data-v="cal">Calendar</button>
-    <button data-v="ai">AI center</button>
-    <button data-v="settings">Settings</button>
+    <button class="on" data-v="dash"><span data-i18n="nav.dash">Dashboard</span></button>
+    <button data-v="tasks"><span data-i18n="nav.tasks">Tasks</span></button>
+    <button data-v="cal"><span data-i18n="nav.cal">Calendar</span></button>
+    <button data-v="focus"><span data-i18n="nav.focus">Focus</span></button>
+    <button data-v="screen"><span data-i18n="nav.screen">Screen time</span></button>
+    <button data-v="settings"><span data-i18n="nav.settings">Settings</span></button>
   </div>
 
   <div class="navfoot">
-    <span class="live"></span><span>Live</span>
+    <span class="live"></span><span data-i18n="live">Live</span>
     <span class="ver" id="ver"></span>
   </div>
 </nav>
@@ -35,38 +41,56 @@
 <main>
   <!-- Top bar -->
   <div class="top">
+    <button class="menubtn" id="nav-open" title="Menu"></button>
     <div class="sw">
-      <input class="search" id="q" placeholder="Search tasks, events, pages...">
-      <kbd class="kbd">Ctrl K</kbd>
+      <input class="search" id="q" data-i18n-ph="search.ph" placeholder="Search tasks, events, pages...">
       <div class="res" id="res"></div>
-    </div>
-    <div class="quick">
-      <button class="qbtn" data-a="lock" title="Lock"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>
-      <button class="qbtn" data-a="sleep" title="Sleep"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
-      <button class="qbtn warn" data-a="restart" title="Restart"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg></button>
-      <button class="qbtn warn" data-a="shutdown" title="Shut down"><svg viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M6.4 6.6a8 8 0 1 0 11.2 0"/></svg></button>
-      <button class="qbtn" data-a="taskmgr" title="Task manager"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></button>
-    </div>
-    <div class="clockbox">
-      <div class="clock" id="clock">--:--</div>
-      <div class="cdate" id="cdate"></div>
     </div>
   </div>
 
-  <!-- Dashboard: Tools, System, Drives, Internet -->
+  <!-- Dashboard (home screen): greeting, widgets, phone stats, tools -->
   <section class="view on" id="dash">
     <div class="page-h">
-      <div class="page-t">Dashboard</div>
-      <div class="page-s">A live look at your PC, plus a few handy tools.</div>
+      <div class="page-t" id="greet">Hello</div>
+      <div class="page-s" id="today-date"></div>
+      <div class="page-s alt" id="today-alt"></div>
+      <div class="hol-tags" id="today-hol"></div>
     </div>
 
-    <div class="h2">Tools</div>
+    <div class="widgets" id="widgets"></div>
+
+    <div class="h2 spaced" data-i18n="dash.phone">Phone</div>
+    <div class="grid">
+      <div class="card">
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-bat" cx="60" cy="60" r="50" stroke="var(--silver)"/></svg>
+          <div class="val" id="v-bat">--</div>
+        </div>
+        <div class="label" data-i18n="bat">Battery</div><div class="sub" id="s-bat"></div>
+      </div>
+      <div class="card">
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-sto" cx="60" cy="60" r="50" stroke="var(--gold)"/></svg>
+          <div class="val" id="v-sto">--</div>
+        </div>
+        <div class="label" data-i18n="sto">Storage</div><div class="sub" id="s-sto"></div>
+      </div>
+      <div class="card">
+        <div class="ring">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-net" cx="60" cy="60" r="50" stroke="var(--champagne)"/></svg>
+          <div class="val txt" id="v-net">--</div>
+        </div>
+        <div class="label" data-i18n="net">Network</div><div class="sub" id="s-net"></div>
+      </div>
+    </div>
+
+    <div class="h2 spaced" data-i18n="dash.tools">Tools</div>
     <div class="tools">
       <div class="tool">
-        <div class="tool-h">Weather</div>
+        <div class="tool-h" data-i18n="weather">Weather</div>
         <div class="row" id="w-set">
-          <input class="inp" id="w-city" placeholder="Your city">
-          <button class="btn" id="w-go">Set</button>
+          <input class="inp" id="w-city" data-i18n-ph="weather.city" placeholder="Your city">
+          <button class="btn" id="w-go" data-i18n="set">Set</button>
         </div>
         <div id="w-view">
           <div class="w-top">
@@ -74,105 +98,14 @@
             <div><div id="w-desc"></div><div class="muted" id="w-place"></div></div>
           </div>
           <div class="muted" id="w-more"></div>
-          <button class="linkbtn" id="w-change">Change city</button>
+          <button class="linkbtn" id="w-change" data-i18n="weather.change">Change city</button>
         </div>
         <div class="muted" id="w-msg"></div>
       </div>
 
       <div class="tool">
-        <div class="tool-h">Battery health</div>
-        <div class="big" id="bh-val">--</div>
-        <div class="dbar"><i id="bh-bar"></i></div>
-        <div class="muted" id="bh-sub"></div>
-        <div class="muted" id="bh-more"></div>
-      </div>
-
-      <div class="tool">
-        <div class="tool-h">Focus timer</div>
-        <div class="chips">
-          <button class="chip on" id="pm-focus">Focus 25</button>
-          <button class="chip" id="pm-break">Break 5</button>
-        </div>
-        <div class="pomo-time" id="pm-time">25:00</div>
-        <div class="dbar"><i id="pm-bar"></i></div>
-        <div class="btnrow">
-          <button class="btn md" id="pm-start">Start</button>
-          <button class="btn md ghost" id="pm-reset">Reset</button>
-        </div>
-        <div class="muted count" id="pm-count"></div>
-      </div>
-
-      <div class="tool">
-        <div class="tool-h">Quick note</div>
-        <textarea class="inp note" id="note" placeholder="Jot something down..."></textarea>
-      </div>
-    </div>
-
-    <div class="h2 spaced">System</div>
-    <div class="cpuname" id="cpuname">Reading hardware...</div>
-    <div class="grid">
-      <div class="card">
-        <div class="ring">
-          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-cpu" cx="60" cy="60" r="50" stroke="var(--white)"/></svg>
-          <div class="val" id="v-cpu">0%</div>
-        </div>
-        <div class="label">CPU</div><div class="sub"></div>
-      </div>
-      <div class="card">
-        <div class="ring">
-          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-gpu" cx="60" cy="60" r="50" stroke="var(--bronze)"/></svg>
-          <div class="val" id="v-gpu">--</div>
-        </div>
-        <div class="label">GPU</div><div class="sub" id="s-gpu"></div>
-      </div>
-      <div class="card">
-        <div class="ring">
-          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-ram" cx="60" cy="60" r="50" stroke="var(--gold)"/></svg>
-          <div class="val" id="v-ram">0%</div>
-        </div>
-        <div class="label">RAM</div><div class="sub" id="s-ram"></div>
-      </div>
-      <div class="card">
-        <div class="ring">
-          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-bat" cx="60" cy="60" r="50" stroke="var(--silver)"/></svg>
-          <div class="val" id="v-bat">--</div>
-        </div>
-        <div class="label">Battery</div><div class="sub" id="s-bat"></div>
-      </div>
-      <div class="card">
-        <div class="ring">
-          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-tmp" cx="60" cy="60" r="50" stroke="var(--champagne)"/></svg>
-          <div class="val" id="v-tmp">--</div>
-        </div>
-        <div class="label">Temperature</div><div class="sub" id="s-tmp"></div>
-      </div>
-    </div>
-
-    <div class="h2 spaced">Drives</div>
-    <div class="drives" id="drives"></div>
-
-    <div class="h2 spaced">Internet</div>
-    <div class="grid">
-      <div class="card">
-        <div class="ring">
-          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-dl" cx="60" cy="60" r="50" stroke="var(--gold)"/></svg>
-          <div class="val" id="v-dl">0</div>
-        </div>
-        <div class="label">Download</div><div class="sub" id="s-dl"></div>
-      </div>
-      <div class="card">
-        <div class="ring">
-          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-ul" cx="60" cy="60" r="50" stroke="var(--white)"/></svg>
-          <div class="val" id="v-ul">0</div>
-        </div>
-        <div class="label">Upload</div><div class="sub" id="s-ul"></div>
-      </div>
-      <div class="card">
-        <div class="ring">
-          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="b-wf" cx="60" cy="60" r="50" stroke="var(--champagne)"/></svg>
-          <div class="val" id="v-wf">--</div>
-        </div>
-        <div class="label" id="l-wf">Wi-Fi</div><div class="sub" id="s-wf"></div>
+        <div class="tool-h" data-i18n="note">Quick note</div>
+        <textarea class="inp note" id="note" data-i18n-ph="note.ph" placeholder="Jot something down..."></textarea>
       </div>
     </div>
   </section>
@@ -180,14 +113,14 @@
   <!-- Tasks -->
   <section class="view" id="tasks">
     <div class="page-h">
-      <div class="page-t">Tasks</div>
-      <div class="page-s">Plan your work, set priorities and never miss a deadline.</div>
+      <div class="page-t" data-i18n="tasks.title">Tasks</div>
+      <div class="page-s" data-i18n="tasks.sub">Plan your work, set priorities and never miss a deadline.</div>
     </div>
 
     <div class="panel composer">
       <div class="row">
-        <input class="inp" id="t-in" placeholder="What needs doing?">
-        <button class="btn" id="t-add">Add task</button>
+        <input class="inp" id="t-in" data-i18n-ph="tasks.ph" placeholder="What needs doing?">
+        <button class="btn" id="t-add" data-i18n="tasks.add">Add task</button>
       </div>
       <div class="row timerow">
         <div id="t-date"></div>
@@ -195,7 +128,7 @@
         <span class="muted">:</span>
         <input class="inp" id="t-mm" type="text" min="0" max="59" data-pad="1" placeholder="mm">
         <select class="inp ampm" id="t-ap"><option>AM</option><option>PM</option></select>
-        <input class="inp" id="t-cat" placeholder="Category">
+        <input class="inp" id="t-cat" data-i18n-ph="cat.ph" placeholder="Category">
       </div>
     </div>
 
@@ -207,16 +140,16 @@
   <!-- Calendar -->
   <section class="view" id="cal">
     <div class="page-h">
-      <div class="page-t">Calendar</div>
-      <div class="page-s">Your days, events and task deadlines in one place.</div>
+      <div class="page-t" data-i18n="cal.title">Calendar</div>
+      <div class="page-s" data-i18n="cal.sub">Your days, events and task deadlines in one place.</div>
     </div>
 
     <div class="calwrap">
       <div class="panel calcard">
         <div class="calhead">
-          <button class="btn sm ghost icon" id="c-prev" title="Previous month"></button>
+          <button class="btn sm ghost icon" id="c-prev" data-i18n-title="cal.prev" title="Previous month"></button>
           <div class="h2 big" id="c-title"></div>
-          <button class="btn sm ghost icon" id="c-next" title="Next month"></button>
+          <button class="btn sm ghost icon" id="c-next" data-i18n-title="cal.next" title="Next month"></button>
         </div>
         <div class="cgrid" id="c-grid"></div>
       </div>
@@ -229,134 +162,183 @@
           <select class="inp ampm" id="e-ap"><option>AM</option><option>PM</option></select>
         </div>
         <div class="row">
-          <input class="inp" id="e-in" placeholder="New event">
-          <button class="btn" id="e-add">Add</button>
+          <input class="inp" id="e-in" data-i18n-ph="cal.newEvent" placeholder="New event">
+          <button class="btn" id="e-add" data-i18n="add">Add</button>
         </div>
         <ul class="list" id="e-list"></ul>
       </div>
     </div>
   </section>
 
-  <!-- AI center -->
-  <section class="view" id="ai">
+  <!-- Focus: one tap starts a work session and silences non-critical notifications -->
+  <section class="view" id="focus">
     <div class="page-h">
-      <div class="page-t">AI center</div>
-      <div class="page-s">A private assistant that runs on your own PC.</div>
+      <div class="page-t" data-i18n="focus.title">Focus</div>
+      <div class="page-s" data-i18n="focus.sub">One tap starts a work session and silences the noise.</div>
     </div>
 
-    <div class="panel wide">
-      <div class="ai-head">
-        <div class="h3">Zaal assistant <span class="gtag" id="ai-state">Not set up</span></div>
-        <select class="inp aisel" id="ai-model" title="AI model"></select>
+    <div class="panel focus-main">
+      <div class="chips fchips">
+        <button class="chip on" id="f-chip-focus" data-i18n="focus.work">Focus</button>
+        <button class="chip" id="f-chip-break" data-i18n="focus.break">Break</button>
       </div>
 
-      <div id="ai-setup">
-        <div class="muted" id="ai-setup-text"></div>
-        <button class="btn md" id="ai-setup-btn">Set up the assistant</button>
+      <div class="fring">
+        <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="50"/><circle class="bar" id="f-bar" cx="60" cy="60" r="50"/></svg>
+        <div class="ftime"><div id="f-time">25:00</div><div class="muted" id="f-state"></div></div>
       </div>
 
-      <div class="chatlog" id="chat-log"></div>
-      <div class="row">
-        <input class="inp" id="chat-in" placeholder="Ask Zaal to add a task, set an event, organize your list...">
-        <button class="btn icon" id="chat-send" title="Send"></button>
+      <div class="btnrow fbtns">
+        <button class="btn big" id="f-start">Start focus</button>
+        <button class="btn md ghost" id="f-reset" data-i18n="focus.reset">Reset</button>
       </div>
-      <div class="muted note">Runs on your own PC with Ollama. Nothing you write is sent online. Small AI models can make mistakes, so Zaal always asks before changing anything.</div>
+
+      <label class="setrow fsilence">
+        <span><span class="setlabel" data-i18n="focus.silence">Silence non-critical notifications</span><span class="muted hint" data-i18n="focus.silenceHint"></span></span>
+        <input type="checkbox" id="f-silence">
+      </label>
+
+      <!-- Android only: the phone's own Do Not Disturb while a session runs -->
+      <div class="dndrow" id="f-dnd" hidden>
+        <span><span class="setlabel" data-i18n="dnd.title"></span><span class="muted hint" data-i18n="dnd.hint"></span></span>
+        <span class="dndside"><span class="muted" id="f-dnd-state"></span><button class="btn sm" id="f-dnd-allow" data-i18n="dnd.allow">Allow</button></span>
+      </div>
     </div>
+
+    <div class="stats">
+      <div class="stat"><b id="f-sessions">0</b><span data-i18n="focus.sessions">Sessions today</span></div>
+      <div class="stat"><b id="f-minutes">0</b><span data-i18n="focus.minutes">Minutes focused</span></div>
+      <div class="stat"><b id="f-streak">0</b><span data-i18n="focus.streak">Day streak</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="stepper-row">
+        <span data-i18n="focus.length">Focus length</span>
+        <div class="stepper"><button class="btn sm ghost" id="f-fm">&minus;</button><b id="f-fv">25</b><button class="btn sm ghost" id="f-fp">+</button><span class="muted" data-i18n="min">min</span></div>
+      </div>
+      <div class="stepper-row">
+        <span data-i18n="focus.breakLength">Break length</span>
+        <div class="stepper"><button class="btn sm ghost" id="f-bm">&minus;</button><b id="f-bv">5</b><button class="btn sm ghost" id="f-bp">+</button><span class="muted" data-i18n="min">min</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen time -->
+  <section class="view" id="screen">
+    <div class="page-h">
+      <div class="page-t" data-i18n="st.title">Screen time</div>
+      <div class="page-s" data-i18n="st.sub">How long you spend inside Zaal Mini.</div>
+    </div>
+
+    <!-- Android only: switch between all apps and Zaal Mini, or allow Usage access -->
+    <div class="chips st-src" id="st-src" hidden>
+      <button class="chip on" id="st-src-phone" data-i18n="st.phone">All apps</button>
+      <button class="chip" id="st-src-app" data-i18n="st.app">Zaal Mini</button>
+    </div>
+    <div class="panel st-allow" id="st-allow" hidden>
+      <div class="muted" data-i18n="st.allowHint"></div>
+      <button class="btn md" id="st-allow-btn" data-i18n="st.allow">Allow usage access</button>
+    </div>
+
+    <div class="panel st-hero">
+      <div class="muted" data-i18n="st.today">Today</div>
+      <div class="st-total" id="st-total">0m</div>
+      <div class="muted" id="st-sub"></div>
+    </div>
+
+    <div class="h2 spaced" data-i18n="st.week">Last 7 days</div>
+    <div class="panel">
+      <div class="st-week" id="st-week"></div>
+      <div class="muted st-avg" id="st-avg"></div>
+    </div>
+
+    <div class="h2 spaced" id="st-where-h" data-i18n="st.where">Where your time goes</div>
+    <div class="panel" id="st-tabs"></div>
+
+    <div class="muted note" id="st-note" data-i18n="st.note"></div>
   </section>
 
   <!-- Settings -->
   <section class="view" id="settings">
     <div class="page-h">
-      <div class="page-t">Settings</div>
-      <div class="page-s">Make Zaal look and behave the way you like.</div>
+      <div class="page-t" data-i18n="set.title">Settings</div>
+      <div class="page-s" data-i18n="set.sub">Make Zaal look and behave the way you like.</div>
     </div>
 
     <div class="setgrid">
-      <div class="panel">
-        <div class="h3">General</div>
-        <label class="setrow">
-          <span class="setlabel">Launch Zaal when the PC starts<small>Opens in the background after you sign in.</small></span>
-          <input type="checkbox" id="auto">
-        </label>
-      </div>
-
       <div class="panel wide-col">
-        <div class="h3">Customize</div>
+        <div class="h3" data-i18n="set.customize">Customize</div>
 
-        <div class="subh">Theme</div>
+        <div class="subh" data-i18n="set.theme">Theme</div>
         <div class="themes" id="theme-opts"></div>
         <div class="customrow" id="custom-row" hidden>
           <input type="color" id="custom-color" value="#7c5cff">
           <input class="inp" id="custom-hex" maxlength="7" placeholder="#7c5cff">
-          <span class="muted">Pick any color. Zaal adjusts it a little so text stays readable.</span>
+          <span class="muted" data-i18n="set.customNote">Pick any color. Zaal adjusts it a little so text stays readable.</span>
         </div>
 
-        <div class="subh">Mode</div>
+        <div class="subh" data-i18n="set.mode">Mode</div>
         <div class="chips" id="mode-chips">
-          <button class="chip" data-mode="dark">Dark</button>
-          <button class="chip" data-mode="light">Light</button>
-          <button class="chip" data-mode="system">Match system</button>
+          <button class="chip" data-mode="dark" data-i18n="mode.dark">Dark</button>
+          <button class="chip" data-mode="light" data-i18n="mode.light">Light</button>
+          <button class="chip" data-mode="system" data-i18n="mode.system">Match system</button>
         </div>
       </div>
 
       <div class="panel">
-        <div class="h3">Calendar</div>
+        <div class="h3" data-i18n="set.language">Language</div>
+        <select class="inp fullw" id="lang-sel"></select>
+        <div class="muted note" data-i18n="set.langHint"></div>
+      </div>
 
-        <div class="subh">Default calendar</div>
+      <div class="panel">
+        <div class="h3" data-i18n="set.widgets">Dashboard widgets</div>
+        <div class="muted note tight" data-i18n="set.widgetsHint"></div>
+        <div id="wg-rows"></div>
+      </div>
+
+      <div class="panel">
+        <div class="h3" data-i18n="set.notify">Notifications</div>
+        <label class="setrow"><span class="setlabel" data-i18n="n.on">Task and event reminders</span><input type="checkbox" id="n-on"></label>
+        <div class="subh" data-i18n="n.before">Remind me before</div>
+        <select class="inp fullw" id="n-before"></select>
+        <label class="setrow"><span><span class="setlabel" data-i18n="n.summary">Morning summary</span><span class="muted hint" data-i18n="n.summaryHint"></span></span><input type="checkbox" id="n-summary"></label>
+        <div class="muted note" id="n-status"></div>
+        <div class="btnrow">
+          <button class="btn md" id="n-allow" data-i18n="n.allow">Allow notifications</button>
+          <button class="btn md ghost" id="n-test" data-i18n="n.test">Send a test notification</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="h3" data-i18n="set.calendar">Calendar</div>
+
+        <div class="subh" data-i18n="set.defCal">Default calendar</div>
         <div class="seg">
-          <label><input type="radio" name="calsys" value="american"><span>American</span></label>
-          <label><input type="radio" name="calsys" value="persian"><span>Persian</span></label>
-          <label><input type="radio" name="calsys" value="islamic"><span>Islamic</span></label>
+          <label><input type="radio" name="calsys" value="american"><span data-i18n="cal.american">American</span></label>
+          <label><input type="radio" name="calsys" value="persian"><span data-i18n="cal.persian">Persian</span></label>
+          <label><input type="radio" name="calsys" value="islamic"><span data-i18n="cal.islamic">Islamic</span></label>
         </div>
 
-        <div class="subh">Holidays</div>
-        <label class="setrow"><span class="setlabel">Persian</span><input type="checkbox" id="cal-persian"></label>
-        <label class="setrow"><span class="setlabel">Islamic</span><input type="checkbox" id="cal-islamic"></label>
-        <label class="setrow"><span class="setlabel">American</span><input type="checkbox" id="cal-us"></label>
+        <div class="subh" data-i18n="set.holidays">Holidays</div>
+        <label class="setrow"><span class="setlabel" data-i18n="cal.persian">Persian</span><input type="checkbox" id="cal-persian"></label>
+        <label class="setrow"><span class="setlabel" data-i18n="cal.islamic">Islamic</span><input type="checkbox" id="cal-islamic"></label>
+        <label class="setrow"><span class="setlabel" data-i18n="cal.american">American</span><input type="checkbox" id="cal-us"></label>
 
-        <div class="muted note">Islamic and Persian dates are calculated and can be off by a day.</div>
+        <div class="muted note" data-i18n="set.calNote">Islamic and Persian dates are calculated and can be off by a day.</div>
       </div>
     </div>
   </section>
 </main>
 
-<!-- Pull-out Today panel (right side) -->
-<aside class="drawer" id="drawer">
-  <div class="drawer-in">
-    <div class="greet" id="greet">Hello</div>
-    <div class="muted" id="today-date"></div>
-    <div class="muted" id="today-alt"></div>
-    <div class="uptime" id="uptime">PC on for --</div>
-
-    <div class="h3 tight">Today</div>
-    <div class="hol-tags" id="today-hol"></div>
-    <ul class="list" id="today-events"></ul>
-
-    <div class="h3 tight">Tasks</div>
-    <ul class="list" id="today-tasks"></ul>
-  </div>
-</aside>
-<button class="handle" id="drawer-toggle" title="Today panel"></button>
-
-<!-- Permission popup for the AI assistant (shown the first time the AI center is opened) -->
-<div class="modal" id="ai-modal" hidden>
-  <div class="modal-box">
-    <div class="h2 big" id="ai-modal-title">Set up the Zaal assistant</div>
-    <div id="ai-modal-body"></div>
-    <div id="ai-modal-progress" hidden>
-      <div class="muted" id="ai-modal-text"></div>
-      <div class="dbar"><i id="ai-modal-bar"></i></div>
-    </div>
-    <div class="btnrow" id="ai-modal-btns">
-      <button class="btn md" id="ai-yes">Install and link</button>
-      <button class="btn md ghost" id="ai-no">Not now</button>
-    </div>
-  </div>
-</div>
+<!-- Scrim behind the menu drawer + the pull tab on the screen edge -->
+<div class="scrim" id="nav-scrim"></div>
+<button class="nav-handle" id="nav-handle" title="Menu" aria-expanded="false"></button>
 
 <!-- Scripts: order matters (core first, app last) -->
 <script src="js/core.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/swipe.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/tasks.js"></script>
 <script src="js/holidays.js"></script>
@@ -364,14 +346,14 @@
 <script src="js/datepicker.js"></script>
 <script src="js/calendar.js"></script>
 <script src="js/search.js"></script>
+<script src="js/notify.js"></script>
+<script src="js/native.js"></script>
+<script src="js/focus.js"></script>
+<script src="js/widgets.js"></script>
+<script src="js/today.js"></script>
+<script src="js/screentime.js"></script>
 <script src="js/settings.js"></script>
-<script src="js/ai-tools.js"></script>
-<script src="js/ai.js"></script>
-<script src="js/drawer.js"></script>
-<script src="js/quick.js"></script>
-<script src="js/pomodoro.js"></script>
-<script src="js/notes.js"></script>
-<script src="js/weather.js"></script>
+<script src="js/navdrawer.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

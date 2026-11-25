@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="zaal_icon_bg">#0B0B0C</color>
+    <string name="zw_desc_small">Streak and your next task</string>
+    <string name="zw_desc_medium">Your next three tasks</string>
+    <string name="zw_desc_large">Schedule, next tasks, progress rings and streak</string>
+</resources>

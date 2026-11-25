@@ -12,7 +12,7 @@ function makeDatePicker(persistent) {
   const year = el('select', 'inp dsel dyear');
   const clear = el('button', 'x');
   clear.innerHTML = icon('close');
-  clear.title = 'Clear date';
+  clear.title = t('date.clear');
   const box = el('div', 'datepick');
   box.append(enhanceSelect(day), enhanceSelect(month), enhanceSelect(year), clear); // themed dropdowns (js/ui.js)
 
@@ -44,15 +44,16 @@ function makeDatePicker(persistent) {
     const from = Math.min(today.y - 1, p ? p.y : today.y);
     const to = Math.max(today.y + 10, p ? p.y : today.y);
     for (let y = from; y <= to; y++) years.push({ v: y, t: String(y) });
-    fill(year, 'Year', years);
-    fill(month, 'Month', MONTH_NAMES[sys].map((name, i) => ({ v: i + 1, t: name })));
+    fill(year, t('date.year'), years);
+    fill(month, t('date.month'), monthNames(sys).map((name, i) => ({ v: i + 1, t: name })));
 
     const length = p ? monthLength(sys, fromCalParts(sys, p.y, p.m, 1)) : 31;
-    fill(day, 'Day', Array.from({ length }, (_, i) => ({ v: i + 1, t: String(i + 1) })));
+    fill(day, t('date.day'), Array.from({ length }, (_, i) => ({ v: i + 1, t: String(i + 1) })));
 
     year.value = p ? String(p.y) : '';
     month.value = p ? String(p.m) : '';
     day.value = p ? String(p.d) : '';
+    clear.title = t('date.clear');
     clear.style.visibility = value ? 'visible' : 'hidden';
   }
 

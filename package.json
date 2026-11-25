@@ -1,7 +1,7 @@
 {
-  "name": "zaal",
-  "version": "0.3.0",
-  "description": "Your PC's dashboard. Live hardware stats, tasks, calendar and a local AI, in one app that runs on your machine and nowhere else.",
+  "name": "zaal-mini",
+  "version": "0.1.0",
+  "description": "Zaal Mini - Zaal for Android phones: dashboard, tasks, calendar, focus mode, widgets, reminders and screen time.",
   "author": "Varee20",
   "license": "MIT",
   "homepage": "https://github.com/Varee20/Zaal#readme",
@@ -13,60 +13,26 @@
     "url": "https://github.com/Varee20/Zaal/issues"
   },
   "keywords": [
-    "electron",
+    "android",
+    "capacitor",
     "dashboard",
-    "system-monitor",
-    "desktop-app",
-    "ollama",
-    "local-ai",
+    "tasks",
+    "calendar",
     "productivity"
   ],
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win nsis",
-    "dist:linux": "node scripts/make-icon.js && electron-builder --linux AppImage deb"
+    "build:web": "node scripts/build-web.js"
   },
   "dependencies": {
-    "systeminformation": "^5.23.0"
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/device": "^6.0.0",
+    "@capacitor/local-notifications": "^6.1.0"
   },
   "devDependencies": {
-    "electron": "^33.4.11",
-    "electron-builder": "^25.1.8"
-  },
-  "build": {
-    "appId": "com.zaal.app",
-    "productName": "Zaal",
-    "electronDist": "node_modules/electron/dist",
-    "directories": { "output": "dist" },
-    "files": [
-      "main.js",
-      "ollama.js",
-      "preload.js",
-      "Zaal.ico",
-      "build/icon.png",
-      "index.html",
-      "css/**/*",
-      "js/**/*",
-      "package.json"
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "Zaal.ico"
-    },
-    "linux": {
-      "target": ["AppImage", "deb"],
-      "icon": "build/icon.png",
-      "category": "Utility",
-      "maintainer": "Varee20 <noreply@example.com>"
-    },
-    "nsis": {
-      "installerIcon": "Zaal.ico",
-      "uninstallerIcon": "Zaal.ico",
-      "installerHeaderIcon": "Zaal.ico",
-      "oneClick": true,
-      "perMachine": false,
-      "deleteAppDataOnUninstall": false
-    }
+    "@capacitor/cli": "^6.2.0",
+    "electron": "^33.4.11"
   }
 }

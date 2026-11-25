@@ -3,6 +3,7 @@
 // Needs core.js, holidays.js, calsys.js and tasks.js (task deadlines show up here too).
 // The months follow your default calendar (Settings -> Calendar): American, Persian or Islamic.
 // Dots under a day: copper = event, blue = task deadline.
+// Event rows can be swiped: your own events get Snooze, Tomorrow and Delete; task deadlines get the task actions.
 // ==========================================================
 
 const WEEK_START = 6; // 6 = Saturday, 1 = Monday, 0 = Sunday
@@ -15,7 +16,7 @@ function renderCal() {
   const first = monthFirst(sys, viewAnchor);
   const info = calParts(sys, first);
   const length = monthLength(sys, first);
-  $('c-title').textContent = MONTH_NAMES[sys][info.m - 1] + ' ' + info.y;
+  $('c-title').textContent = monthNames(sys)[info.m - 1] + ' ' + info.y;
 
   const grid = $('c-grid');
   grid.innerHTML = '';
@@ -23,7 +24,7 @@ function renderCal() {
   // Weekday names, starting from WEEK_START (7 Jan 2024 was a Sunday)
   for (let i = 0; i < 7; i++) {
     const d = new Date(2024, 0, 7 + WEEK_START + i);
-    grid.append(el('div', 'dow', d.toLocaleDateString('en-US', { weekday: 'short' })));
+    grid.append(el('div', 'dow', d.toLocaleDateString(langLocale('gregory'), { weekday: 'short' })));
   }
 
   // Empty cells before the 1st, then one button per day of the month
@@ -58,6 +59,66 @@ function renderCal() {
   renderEvents();
 }
 
+// ---------- Moving and removing your own events ----------
+function snoozeEvent(ev) {
+  if (!ev.time) return;
+  const [y, m, d] = ev.date.split('-').map(Number);
+  const [hh, mm] = ev.time.split(':').map(Number);
+  const when = new Date(y, m - 1, d, hh, mm + 60);
+  ev.date = iso(when);
+  ev.time = hhmmOf(when);
+  save();
+  renderCal();
+  toast(tr('toast.snoozed'));
+}
+
+function tomorrowEvent(ev) {
+  ev.date = isoPlus(ev.date, 1);
+  save();
+  renderCal();
+  toast(tr('toast.tomorrow'));
+}
+
+function deleteEvent(ev) {
+  data.events = data.events.filter(k => k.id !== ev.id);
+  save();
+  renderCal();
+  toast(tr('toast.deleted'));
+}
+
+function eventSwipeCfg(ev) {
+  const left = [];
+  if (ev.time) left.push({ label: tr('sw.snooze'), icon: 'clock', fn: () => snoozeEvent(ev) });
+  left.push({ label: tr('sw.tomorrow'), icon: 'cal', fn: () => tomorrowEvent(ev) });
+  left.push({ label: tr('delete'), icon: 'trash', cls: 'danger', fn: () => deleteEvent(ev) });
+  return { left };
+}
+
+// One event as a list row (used here and in the dashboard widgets)
+function eventRow(ev) {
+  const row = el('div', 'item');
+  row.append(el('span', 'muted', fmtTime(ev.time)), el('span', 't', ev.title));
+
+  if (ev.source === 'task') {
+    row.append(el('span', 'gtag task', tr('tag.task')));
+    row.classList.add('clickable');
+    row.title = tr('cal.openTasks');
+    row.onclick = () => showView('tasks');
+    const task = data.tasks.find(k => k.id === ev.taskId);
+    return swipeRow(row, task ? taskSwipeCfg(task) : {});
+  }
+  if (ev.source === 'google') {
+    row.append(el('span', 'gtag', tr('tag.google'))); // Google events are read-only
+    return swipeRow(row, {});
+  }
+  const remove = el('button', 'x');
+  remove.innerHTML = icon('close');
+  remove.title = tr('delete');
+  remove.onclick = () => deleteEvent(ev);
+  row.append(remove);
+  return swipeRow(row, eventSwipeCfg(ev));
+}
+
 function renderEvents() {
   const [y, m, d] = selDay.split('-').map(Number);
   const day = new Date(y, m - 1, d, 12);
@@ -69,7 +130,7 @@ function renderEvents() {
   // Holidays first
   holidaysFor(day).forEach(h => {
     const li = el('li', 'item');
-    li.append(el('span', 'gtag hbadge', 'Holiday'), el('span', 't', h));
+    li.append(el('span', 'gtag hbadge', tr('cal.holiday')), el('span', 't', h));
     list.append(li);
   });
 
@@ -77,26 +138,8 @@ function renderEvents() {
   const evs = calEvents()
     .filter(e => e.date === selDay)
     .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
-  if (!evs.length) list.append(el('li', 'muted', 'No events this day.'));
-
-  evs.forEach(e => {
-    const li = el('li', 'item');
-    li.append(el('span', 'muted', fmtTime(e.time)), el('span', 't', e.title));
-    if (e.source === 'task') {
-      li.append(el('span', 'gtag task', 'Task'));
-      li.classList.add('clickable');
-      li.title = 'Open in Tasks';
-      li.onclick = () => showView('tasks');
-    } else if (e.source === 'google') {
-      li.append(el('span', 'gtag', 'Google')); // Google events are read-only
-    } else {
-      const remove = el('button', 'x');
-      remove.innerHTML = icon('close');
-      remove.onclick = () => { data.events = data.events.filter(k => k.id !== e.id); save(); renderCal(); };
-      li.append(remove);
-    }
-    list.append(li);
-  });
+  if (!evs.length) list.append(el('li', 'muted', tr('cal.noEvents')));
+  evs.forEach(e => list.append(eventRow(e)));
 }
 
 function addEvent() {

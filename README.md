@@ -1,211 +1,153 @@
-# Zaal
+# Zaal Mini
 
-**Your PC's dashboard.** Live hardware stats, tasks, a multi-system calendar and a local AI assistant, in one app that runs on your machine and nowhere else.
+Zaal for your Android phone: a futuristic little command center for your day.
+Tasks, calendar, a one-tap focus mode with real Do Not Disturb, smart widgets on your dashboard **and your home screen**, reminders, phone-wide screen time and 8 languages, in the same look as Zaal v0.3.0.
 
-Built with Electron and plain HTML/CSS/JS.
+> Status: **v0.1.0 (first build)**. The app is built into an installable `.apk` by GitHub (see "Get the APK"). The native Android parts were written without being able to run them, so expect a fix or two after the first test on a real phone.
 
-> **Platform support:** Windows and Linux (Ubuntu, Debian, Mint, Fedora, Arch and most others).
+---
 
-<p align="center">
-  <img src="Screen%20shots/dashboard.png" alt="Zaal dashboard with live CPU, GPU, RAM, battery and temperature gauges" width="49%">
-  <img src="Screen%20shots/calendar-page.png" alt="Zaal calendar with per-day events and task deadlines" width="49%">
-</p>
+## What's new in v0.1.0
+
+- **Zaal Mini is born.** A phone version of Zaal, on its own branch (`Zaal-mini`) with its own app name and its own saved data. Everything that only makes sense on a PC is gone: the AI center, the lock / sleep / restart buttons, CPU / GPU / temperature, fans and drives.
+- **Pull-out menu drawer.** Tap the menu button, tap or drag the little tab on the screen edge, or swipe it out. It follows your finger. In Persian and Arabic it comes from the right.
+- **Focus tab (new).** One tap on **Start focus** starts a work session (pomodoro: 25 min focus, 5 min break, both adjustable) and turns on **focus mode**. Reminders that are not critical are held until the session ends, and **High-priority tasks still get through**. On the phone it also switches on Android's **Do Not Disturb** (priority only) for the session and switches it back off when the session ends, even if the app was closed. The timer survives closing the app. Sessions, focused minutes and your streak are counted.
+- **Smart widgets, in the app and on your home screen.**
+  - *In the app* (dashboard): **Today's schedule**, **Next tasks** (the next 3), **Today's progress** (rings: tasks, focus sessions, active days this week) and **Streak**, each in S / M / L. Turn them on or off and pick sizes in Settings.
+  - *On the Android home screen:* three real widgets. **Small (2x2)**: streak + next task. **Medium (4x2)**: next three tasks. **Large (4x4)**: schedule, next tasks, progress rings and streak. They update whenever your data changes. Tap one to open the app.
+- **Swipe actions everywhere.** On tasks, calendar events and the widgets: swipe toward the end of the row to **finish** a task (or reopen it); swipe the other way to open **Snooze (+1 hour)**, **Tomorrow (reschedule)** and **Priority (cycles Low / Medium / High)**. Your own events get Snooze, Tomorrow and Delete.
+- **Reminders (notifications).** Tasks with a deadline and events with a time get a reminder N minutes before (you choose, or only at the time) and again when they are due. Optional **morning summary** at 8:00. A "focus session is over" notification. High-priority tasks use a separate "Critical reminders" channel that asks to get through Do Not Disturb. A "Send a test notification" button in Settings.
+- **Screen time tab (new).** Today's total, the last 7 days as bars, the daily average and where the time went. Two sources: **Zaal Mini** (time inside this app) and, once you allow Usage access, **All apps** (phone-wide, with your most used apps today).
+- **Language chooser.** English (default), **Persian (فارسی)**, Arabic (العربية), Turkish, Russian, Spanish, French and German. Persian and Arabic switch the whole layout to right-to-left, and months and weekdays follow the language (Persian and Islamic month names in Persian / Arabic script).
+- **Phone layout.** One column, phone-sized cards and pickers, safe areas for the status bar.
+
+---
+
+## Get the APK
+
+GitHub builds the app for you in the cloud. **You don't need Android Studio, Java or Android tools on your PC.**
+
+1. Push the `Zaal-mini` branch to GitHub (`git push origin Zaal-mini`). Every push builds an `.apk`: open the repository's **Actions** tab, click the latest "Android APK" run and download **Zaal-Mini-apk** at the bottom of the page.
+2. To publish a proper release, tag it:
+   ```
+   git tag mini-v0.1.0
+   git push origin mini-v0.1.0
+   ```
+   The `.apk` then appears under **Releases**. (Tags must start with `mini-v`. The desktop release workflow only reacts to tags that start with `v`.)
+3. Put the `.apk` on your phone and open it. Android asks you to allow installing from this source once.
+
+If a build fails, open the failed run, copy the red error and send it over.
+
+### What the app asks permission for
+
+| Permission | Why | When you are asked |
+|---|---|---|
+| Notifications | reminders, "focus session is over" | the first time the app opens |
+| Do Not Disturb access | focus mode silences the phone | when you tap **Allow** on the Focus tab |
+| Usage access | phone-wide screen time | when you tap **Allow usage access** on the Screen time tab |
+| Exact alarms | reminders arrive on the minute | automatic |
+
+Everything works without the two special permissions; you just don't get Do Not Disturb or all-apps screen time.
+
+If **High-priority** reminders are still silenced during focus on your phone, open Android Settings > Apps > Zaal Mini > Notifications > **Critical reminders** and turn on **Override Do Not Disturb**. Some Android versions and phone makers need that switch.
+
+### Home screen widgets
+
+Long-press an empty spot on your home screen > **Widgets** > **Zaal Mini** and pick a size. They fill in the first time the app has opened and synced.
+
+---
 
 ## Features
 
-**Dashboard**
-- Live CPU, GPU, RAM, battery and temperature gauges
-- Drive usage overview
-- Network download/upload speed and Wi-Fi status
-- Tools: weather, battery health, focus (Pomodoro) timer, quick note
+| | |
+|---|---|
+| Dashboard | Greeting, today's date and holidays, smart widgets, phone stats (battery, storage, network), weather, quick note |
+| Tasks | Deadline (date + time), priority, category, subtasks, edit, swipe actions |
+| Calendar | American, Persian or Islamic months, holidays, events, task deadlines |
+| Focus | One-tap focus mode + pomodoro, silences non-critical reminders and the phone |
+| Screen time | Time inside Zaal Mini, or phone-wide |
+| Settings | Theme and your own color, dark / light / system, language, calendar, widgets, notifications |
 
-**Tasks**
-- Add tasks with a deadline (date and time), a category, a priority (Low, Medium, High) and subtasks
-- Edit tasks, filter by category, and see deadlines on the calendar
+---
 
-**Calendar**
-- Islamic, Persian and American (Gregorian) calendar systems
-- Optional holiday overlays for each
-- Per-day events with times
+## Try it on the PC
 
-**AI center**
-- Chat assistant that runs locally through [Ollama](https://ollama.com)
-- Can add tasks, set events and organize your list, and asks before changing anything
-- Nothing you write leaves your PC
-
-**Everything else**
-- Global search across tasks, events and pages (`Ctrl+K`)
-- Quick actions: lock, sleep, restart, shut down, open the system monitor
-- Pull-out "Today" panel with greeting, date, uptime, events and tasks
-- Optional launch at startup
-- Customize: 10 themes (Bronze, Silver, Gold, Titanium, Copper, Rose Gold, Cobalt, Verdigris, Platinum, Obsidian), a Custom theme where you pick any color, and Dark, Light or Match system mode (Settings > Customize)
-
-## What's new
-
-### v0.3.0
-- **No more system-looking controls.** The hour/minute boxes, the dropdown lists (Year, Month, Day, AM/PM, AI model) and the category suggestions are now Zaal's own and follow your theme, in dark and light.
-  - Hour and minute boxes have themed up/down buttons, and also work with the arrow keys and mouse wheel. Minutes show as `05`, and 12 wraps back to 1.
-  - Dropdowns open a themed list you can use with the keyboard (arrows, Enter, Esc) or by typing to jump (`14` jumps to 1404).
-- **A full visual polish of the whole app:**
-  - New sidebar with a logo, icons, a glowing active marker, and the version number at the bottom.
-  - Redesigned top bar: search with a `Ctrl K` hint, grouped quick-action buttons, and the date under the clock.
-  - Every page has a proper title. Cards, tiles and panels have soft lighting, depth and a faint grid behind them.
-  - Gauges have a glow and a dashed outer ring, and cards lift when you hover them.
-  - Redesigned task cards with a priority bar, a round priority control and themed checkboxes. The calendar has bigger, softer day cells.
-  - Settings use switches and segmented buttons. The AI chat, the Today panel and the popup got the same treatment.
-  - Pages fade in and the popups animate. Everything respects "reduce motion".
-- The focus timer has a progress bar.
-- The window now has a minimum size so the layout never breaks.
-
-### v0.2.1
-- **7 new themes:** Titanium, Copper, Rose Gold, Cobalt, Verdigris, Platinum and Obsidian. With Bronze, Silver and Gold that makes 10.
-- **Custom theme:** pick any color you like. Zaal works out the rest of the colors from it and adjusts it a little so text stays readable in dark and light mode.
-- **Match system mode:** next to Dark and Light, follows your PC's dark/light setting and switches with it.
-- **Bronze looks different now:** it's a muted brown-gold so it no longer looks like the new red-orange Copper.
-- Themes are now defined in one table in `js/theme.js`, so adding a new one takes a single line.
-
-### v0.2.0
-- **Themes:** new Customize section in Settings with Bronze, Silver and Gold themes.
-- **Dark and Light mode:** switch the whole app between them.
-- The window opens in the right color, so there's no dark flash if you use light mode.
-
-## Getting started (Windows)
-
-Requirements: Windows 10/11 and [Node.js](https://nodejs.org) 18 or newer.
-
-```bash
-git clone https://github.com/Varee20/Zaal.git
-cd Zaal
-npm install
+```
 npm start
 ```
 
-### Build the installer
+This opens Zaal Mini in a **phone-sized window**. It is only a preview shell (`main.js`): the real phone app is made from the same `index.html`, `css` and `js` folders. Data is saved inside the app (browser storage), separate from desktop Zaal. You can also open `index.html` in Chrome and press F12, then Ctrl+Shift+M for phone emulation.
 
-```bash
-npm run dist
-```
+| | PC preview | Phone app |
+|---|---|---|
+| Battery, storage | what the browser can see | the real phone values |
+| Reminders | browser notifications, only while the app is open | real notifications, even when the app is closed |
+| Do Not Disturb, all-apps screen time, home screen widgets | not available (hidden) | yes |
+| Everything else | same | same |
 
-The installer lands in `dist/`. On Windows you can also just run `build.bat`, which re-launches itself as admin (needed once for the icon tooling) and uses npm mirrors for networks where GitHub downloads fail.
+---
 
-Or go to the [Releases page](https://github.com/Varee20/Zaal/releases), open the latest release and download the `.exe` installer. Run it and Zaal installs and opens.
+## Honest notes
 
-### AI assistant setup
+- **Translations** were written by an AI and may have awkward spots. Weather descriptions are grouped (clear, cloudy, rain, ...). Holiday names stay in English. Numbers stay 0-9 in every language.
+- **The installed APK is a debug build.** It is signed with a throwaway debug key, which is fine for installing on your own phone. A proper signed release (needed for the Play Store) comes later.
+- **Email tab and Notes tab** are not in v0.1.0 yet (the Quick note is still on the dashboard).
+- The app icon is drawn from the Zaal logo on Android 8 and newer; older Androids show the default icon.
 
-Open the **AI center** tab and click **Set up the assistant**. Zaal will install and link Ollama for you. Small local models can make mistakes, which is why every change needs your confirmation.
+---
 
-## Linux
+## Roadmap
 
-Zaal runs on Linux too. Pick the section that fits you.
+1. Fix whatever the first real-phone test shows.
+2. Notes tab and Email tab.
+3. A proper signed release build.
 
-### A. Install it (for normal users)
-
-Go to the [Releases page](https://github.com/Varee20/Zaal/releases) and download one file:
-
-**Ubuntu, Debian, Linux Mint, Pop!_OS** (the `.deb` file):
-
-```bash
-sudo apt install ./zaal_0.3.0_amd64.deb
-```
-
-(Use the real file name you downloaded, and run the command in the folder where it is.) Then open **Zaal** from your app menu.
-
-**Any other distro, including Fedora and Arch** (the `.AppImage` file):
-
-```bash
-chmod +x Zaal-0.3.0.AppImage
-./Zaal-0.3.0.AppImage
-```
-
-The first line makes the file runnable, the second starts it. You can also right-click the file, open Properties, and tick "Allow executing as program".
-
-**Only for the AI center:** Zaal needs the `zstd` tool to unpack Ollama. Install it once:
-
-```bash
-sudo apt install zstd        # Ubuntu, Debian, Mint
-sudo dnf install zstd        # Fedora
-sudo pacman -S zstd          # Arch
-```
-
-If the app doesn't start, run it from a terminal (`./Zaal-0.3.0.AppImage` or `zaal`) and the error message will show up there.
-
-### B. Run it from source (for developers)
-
-You need [Node.js](https://nodejs.org) 18 or newer and git.
-
-```bash
-git clone https://github.com/Varee20/Zaal.git
-cd Zaal
-npm install
-npm start
-```
-
-### C. Build the Linux installers (for the maintainer)
-
-**The easy way (automatic):** GitHub builds everything for you. After pushing your code, run:
-
-```bash
-git tag v0.3.0
-git push origin v0.3.0
-```
-
-Wait about 10 minutes (watch it on the repo's **Actions** tab). A release named `v0.3.0` then appears on the **Releases** page with the Windows installer, the `.deb` and the `.AppImage`. For the next version, change `version` in `package.json`, push, and use a new tag such as `v0.3.1`. The recipe lives in `.github/workflows/release.yml`.
-
-**The manual way:** The Linux files have to be built **on Linux**. A Windows PC can't build them. Use a Linux PC, a virtual machine, or WSL.
-
-1. Push all your latest changes to GitHub from Windows.
-2. On the Linux machine, get a fresh copy. Do not copy `node_modules` over from Windows:
-   ```bash
-   git clone https://github.com/Varee20/Zaal.git
-   cd Zaal
-   npm install
-   ```
-3. Build:
-   ```bash
-   npm run dist:linux
-   ```
-4. Your files are now in the `dist/` folder: a `.AppImage` and a `.deb`.
-5. Upload both to GitHub: open the repo, click **Releases**, then **Draft a new release**, drag in the two files and publish. Users download them from there (section A).
-
-The app icon is made automatically from `Zaal.ico` into `build/icon.png`. To use your own, put a 512x512 PNG at `build/icon.png` first.
-
-Before publishing the `.deb`, open `package.json` and change the `maintainer` line under `build` > `linux` from `noreply@example.com` to your real email.
-
-### What works differently on Linux
-
-- **GPU gauge:** works for NVIDIA and AMD. Intel graphics show `--`.
-- **Launch at startup:** adds a small file in `~/.config/autostart`. Turning it off deletes it.
-- **Lock, sleep, restart, shut down:** use `loginctl` and `systemctl`, which most distros have. The last button opens whichever system monitor your desktop has (GNOME, KDE, MATE, XFCE).
-- **AI center:** Ollama is installed into your home folder (`~/.local/share/zaal/ollama`), so no `sudo` is needed. If you already have Ollama installed, Zaal uses that instead. AMD graphics cards run the AI on the CPU for now.
-- **AppImage on Ubuntu 24.04 and newer:** it runs with Chromium's sandbox turned off, because Ubuntu blocks it for AppImages. The `.deb` doesn't have this problem, so prefer it on Ubuntu.
-- **Wi-Fi speed:** may be blank on some setups.
+---
 
 ## Project structure
 
 ```
-Zaal/
-├── main.js          # Electron main process
-├── preload.js       # Secure bridge between main and renderer
-├── ollama.js        # Local AI (Ollama) integration
-├── index.html       # App shell
-├── css/style.css    # Theme and layout
-├── js/              # Renderer modules (dashboard, tasks, calendar, AI, theme, ui controls, ...)
-├── Zaal.ico         # App icon
-├── scripts/         # make-icon.js (builds the Linux PNG icon)
-└── build.bat        # One-click Windows installer build
+index.html            the screens
+main.js               PC preview window only (npm start)
+capacitor.config.json the phone app's id and name
+css/style.css         all the styling (dark / light, phone layout, right-to-left)
+js/                   the app itself
+  platform.js         saved data + weather (replaces the old Electron bridge)
+  langs.js, langs-native.js   every text in every language
+  i18n.js             the language engine (t('key'), right-to-left, data-i18n)
+  theme.js            themes and your own color
+  core.js             shared helpers, saved data, daily activity and streak
+  ui.js               Zaal's own dropdowns, number boxes, suggestions and icons
+  swipe.js            swipe actions + the little confirmation message
+  dashboard.js        battery, storage, network
+  tasks.js, calendar.js, calsys.js, holidays.js, datepicker.js
+  search.js           the search bar
+  notify.js           reminders
+  native.js           the phone-only parts: Do Not Disturb, phone-wide usage, home screen widget data
+  focus.js            the Focus tab
+  widgets.js          the dashboard widgets
+  today.js            greeting and holidays at the top of the dashboard
+  screentime.js       the Screen time tab
+  settings.js         the Settings page
+  navdrawer.js        the pull-out menu
+  weather.js, notes.js
+  app.js              starts everything
+native/                Android code added on top of the generated project
+  java/               ZaalNativePlugin (Do Not Disturb, usage stats, channels, widget data), DndReceiver, the three widgets
+  res/                widget layouts and settings, icons
+scripts/
+  build-web.js        copies the web files into www/ for Capacitor
+  patch-android.js    adds native/ to the generated Android project
+.github/workflows/android.yml   builds the APK in the cloud
 ```
 
-## Tech stack
+### Adding a language
 
-- [Electron](https://www.electronjs.org)
-- [systeminformation](https://systeminformation.io) for hardware stats
-- [electron-builder](https://www.electron.build) for the NSIS installer
-- [Ollama](https://ollama.com) for the local AI
+1. In `js/langs.js`, copy the `STR.en` block, rename it (for example `STR.it`) and translate the right-hand side. Do the same in `js/langs-native.js`. Keep the `{name}` parts as they are. Missing keys fall back to English.
+2. In `js/i18n.js`, add one line to `LANGS` (its name, `ltr` or `rtl`, and its locale code).
 
-## Notes
-
-- Islamic and Persian dates are calculated, so they can be off by a day.
+---
 
 ## License
 
-[MIT](LICENSE)
+MIT

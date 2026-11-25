@@ -1,0 +1,76 @@
+# Builds the Zaal Mini Android app (.apk) in the cloud. You don't need Android Studio on your PC.
+#
+#  - Every push to the Zaal-mini branch builds an .apk and attaches it to the run as a download ("Artifacts" at the bottom of the run page).
+#  - Pushing a tag that starts with "mini-v" (for example mini-v0.1.0) also publishes it as a GitHub Release.
+#
+# Release steps (in the project folder):
+#   git tag mini-v0.1.0
+#   git push origin mini-v0.1.0
+
+name: Android APK
+
+on:
+  push:
+    branches: [Zaal-mini]
+    tags: ['mini-v*']
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'   # the PC preview's Electron is not needed here
+      VERSION_CODE: ${{ github.run_number }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install packages
+        run: npm install
+
+      - name: Copy the web files into www/
+        run: node scripts/build-web.js
+
+      - name: Create the Android project
+        run: npx cap add android
+
+      - name: Add Zaal Mini's native code (Do Not Disturb, screen time, widgets)
+        run: node scripts/patch-android.js
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build the APK
+        working-directory: android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Name the file
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk "Zaal-Mini-${{ github.ref_name }}.apk"
+
+      - name: Keep the APK as a download
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zaal-Mini-apk
+          path: Zaal-Mini-*.apk
+
+      - name: Publish a GitHub Release
+        if: startsWith(github.ref, 'refs/tags/mini-v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Zaal-Mini-*.apk
+          generate_release_notes: true

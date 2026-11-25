@@ -12,7 +12,6 @@ const ICONS = {
   dash: '<rect x="3" y="3" width="7" height="9" rx="1.8"/><rect x="14" y="3" width="7" height="5" rx="1.8"/><rect x="14" y="12" width="7" height="9" rx="1.8"/><rect x="3" y="16" width="7" height="5" rx="1.8"/>',
   tasks: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17"/>',
   cal: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
-  ai: '<path d="M11 3l1.9 5.1L18 10l-5.1 1.9L11 17l-1.9-5.1L4 10l5.1-1.9z"/><path d="M18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/>',
   settings: '<path d="M3 6h9M18 6h3M3 12h3M12 12h9M3 18h11M20 18h1"/><circle cx="15" cy="6" r="2.3"/><circle cx="9" cy="12" r="2.3"/><circle cx="17" cy="18" r="2.3"/>',
   search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
   edit: '<path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M14 7l3 3"/>',
@@ -22,6 +21,14 @@ const ICONS = {
   left: '<path d="M15 6l-6 6 6 6"/>',
   right: '<path d="M9 6l6 6-6 6"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h10"/>',
+  focus: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+  screen: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  trash: '<path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13"/>',
+  flame: '<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 .3 1.5 1 2 2 2-.5-3 .5-5 1-8z"/>',
+  undo: '<path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 8"/>',
   send: '<path d="M21 3L10 14"/><path d="M21 3l-7 18-4-8-8-4z"/>'
 };
 
@@ -197,7 +204,7 @@ function enhanceNumber(input) {
 
   const root = el('div', 'num');
   const steps = el('div', 'num-steps');
-  [['up', 1, 'Increase'], ['down', -1, 'Decrease']].forEach(([name, dir, tip]) => {
+  [['up', 1, t('num.inc')], ['down', -1, t('num.dec')]].forEach(([name, dir, tip]) => {
     const b = el('button', 'num-btn');
     b.type = 'button';
     b.tabIndex = -1;
@@ -270,23 +277,19 @@ function initUI() {
     svg.insertAdjacentHTML('afterbegin', '<circle class="ticks" cx="60" cy="60" r="58"/>');
   });
 
-  // sidebar icons
+  // menu drawer icons
   document.querySelectorAll('nav button[data-v]').forEach(b => b.insertAdjacentHTML('afterbegin', icon(b.dataset.v)));
   $('q').parentNode.insertAdjacentHTML('afterbegin', icon('search').replace('class="ico"', 'class="ico sico"'));
 
   // buttons that used text arrows
   $('c-prev').innerHTML = icon('left');
   $('c-next').innerHTML = icon('right');
-  $('chat-send').innerHTML = icon('send');
 
   // number boxes, dropdowns and the category suggestions
   ['t-hh', 't-mm', 'e-hh', 'e-mm'].forEach(id => enhanceNumber($(id)));
-  ['t-ap', 'e-ap', 'ai-model'].forEach(id => enhanceSelect($(id)));
-  $('ai-model').closest('.dd').style.display = 'none'; // shown by ai.js once there is more than one model
+  ['t-ap', 'e-ap'].forEach(id => enhanceSelect($(id)));
   attachSuggest($('t-cat'), taskCategories);
 
-  if (typeof setDrawer === 'function') setDrawer(false); // draws the arrow on the Today panel handle
-
-  // version number at the bottom of the sidebar
+  // version number at the bottom of the menu drawer
   if (window.pc && window.pc.getVersion) window.pc.getVersion().then(v => { $('ver').textContent = 'v' + v; }).catch(() => {});
 }

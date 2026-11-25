@@ -3,41 +3,55 @@
 // You type your city once and it is remembered.
 // ==========================================================
 
-const WEATHER_CODES = {
-  0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
-  45: 'Fog', 48: 'Freezing fog',
-  51: 'Light drizzle', 53: 'Drizzle', 55: 'Heavy drizzle', 56: 'Freezing drizzle', 57: 'Heavy freezing drizzle',
-  61: 'Light rain', 63: 'Rain', 65: 'Heavy rain', 66: 'Freezing rain', 67: 'Heavy freezing rain',
-  71: 'Light snow', 73: 'Snow', 75: 'Heavy snow', 77: 'Snow grains',
-  80: 'Light showers', 81: 'Showers', 82: 'Violent showers', 85: 'Snow showers', 86: 'Heavy snow showers',
-  95: 'Thunderstorm', 96: 'Thunderstorm with hail', 99: 'Thunderstorm with heavy hail'
-};
+// Weather code -> a short description in the chosen language (grouped to keep the translations small)
+function weatherText(code) {
+  if (code <= 1) return tr('wx.clear');
+  if (code === 2) return tr('wx.partly');
+  if (code === 3) return tr('wx.overcast');
+  if (code === 45 || code === 48) return tr('wx.fog');
+  if (code >= 51 && code <= 57) return tr('wx.drizzle');
+  if (code >= 61 && code <= 67) return tr('wx.rain');
+  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return tr('wx.snow');
+  if (code >= 80 && code <= 82) return tr('wx.showers');
+  if (code >= 95) return tr('wx.thunder');
+  return tr('wx.unknown');
+}
+
+let lastWeather = null; // kept so a language change can redraw without asking the service again
 
 function showWeatherSetup(show) {
   $('w-set').style.display = show ? 'flex' : 'none';
   $('w-view').style.display = show ? 'none' : 'block';
 }
 
+function drawWeather() {
+  const r = lastWeather;
+  const city = data.settings.city;
+  if (!r || !city) return;
+  const deg = n => Math.round(n) + '\u00b0';
+  $('w-temp').textContent = deg(r.temp);
+  $('w-desc').textContent = weatherText(r.code);
+  $('w-place').textContent = city.name;
+  $('w-more').textContent = tr('weather.more', {
+    feels: deg(r.feels), hi: deg(r.hi), lo: deg(r.lo), hum: Math.round(r.humidity), wind: Math.round(r.wind)
+  });
+}
+
 async function loadWeather() {
   const city = data.settings.city;
   if (!city) return;
-  $('w-msg').textContent = 'Updating...';
+  $('w-msg').textContent = tr('weather.updating');
   const r = await window.pc.weatherNow(city.lat, city.lon);
-  if (r.error) { $('w-msg').textContent = 'Could not load weather: ' + r.error; return; }
-
-  const deg = n => Math.round(n) + '\u00b0';
-  $('w-temp').textContent = deg(r.temp);
-  $('w-desc').textContent = WEATHER_CODES[r.code] || 'Unknown';
-  $('w-place').textContent = city.name;
-  $('w-more').textContent = 'Feels like ' + deg(r.feels) + '  |  H ' + deg(r.hi) + '  L ' + deg(r.lo) +
-    '  |  ' + Math.round(r.humidity) + '% humidity  |  wind ' + Math.round(r.wind) + ' km/h';
+  if (r.error) { $('w-msg').textContent = tr('weather.fail', { e: r.error }); return; }
+  lastWeather = r;
+  drawWeather();
   $('w-msg').textContent = '';
 }
 
 async function setCity() {
   const name = $('w-city').value.trim();
   if (!name) return;
-  $('w-msg').textContent = 'Searching...';
+  $('w-msg').textContent = tr('weather.searching');
   const r = await window.pc.weatherGeocode(name);
   if (r.error) { $('w-msg').textContent = r.error; return; }
   data.settings.city = { name: r.name, lat: r.lat, lon: r.lon };

@@ -10,6 +10,20 @@ const MONTH_NAMES = {
   islamic: ['Muharram', 'Safar', "Rabi' al-awwal", "Rabi' al-thani", 'Jumada al-awwal', 'Jumada al-thani', 'Rajab', "Sha'ban", 'Ramadan', 'Shawwal', "Dhu al-Qi'dah", 'Dhu al-Hijjah']
 };
 
+// Month names in the chosen language. Gregorian months come from the browser; the Persian and Islamic
+// ones are written out in Persian / Arabic script when the app language is Persian or Arabic.
+const MONTHS_PERSIAN_FA = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+const MONTHS_ISLAMIC_AR = ['محرم', 'صفر', 'ربيع الأول', 'ربيع الآخر', 'جمادى الأولى', 'جمادى الآخرة', 'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'];
+
+function monthNames(sys) {
+  const script = LANG === 'fa' || LANG === 'ar';
+  if (sys === 'persian' && script) return MONTHS_PERSIAN_FA;
+  if (sys === 'islamic' && script) return MONTHS_ISLAMIC_AR;
+  if (sys !== 'american') return MONTH_NAMES[sys];
+  const f = new Intl.DateTimeFormat(langLocale('gregory'), { month: 'long' });
+  return Array.from({ length: 12 }, (_, i) => f.format(new Date(2024, i, 15)));
+}
+
 // "-nu-latn" keeps the digits as normal 0-9
 const CAL_LOCALES = {
   american: 'en-US-u-ca-gregory-nu-latn',
@@ -43,10 +57,10 @@ function monthLength(sys, first) {
 
 // "Saturday, 12 Aban" (American: "Thursday, November 19"). Add the year with withYear = true.
 function fmtCalDate(sys, date, withYear) {
-  const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
+  const weekday = date.toLocaleDateString(langLocale('gregory'), { weekday: 'long' });
   const p = calParts(sys, date);
-  const month = MONTH_NAMES[sys][p.m - 1];
-  if (sys === 'american') return weekday + ', ' + month + ' ' + p.d + (withYear ? ', ' + p.y : '');
+  const month = monthNames(sys)[p.m - 1];
+  if (sys === 'american' && LANG === 'en') return weekday + ', ' + month + ' ' + p.d + (withYear ? ', ' + p.y : '');
   return weekday + ', ' + p.d + ' ' + month + (withYear ? ' ' + p.y : '');
 }
 
